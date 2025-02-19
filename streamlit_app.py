@@ -186,14 +186,9 @@ def create_campaign_scorecard():
                 key = f"pre_{category}_{metric}"
                 col1, col2 = st.columns([3, 2])
                 with col1:
-                    # Use markdown with HTML tooltip
-                    tooltip_html = f"""
-                    <div style="display: inline-flex; align-items: center; gap: 5px;">
-                        {metric}
-                        <span style="color: #888; cursor: help;" title="{metric_definitions[metric]}">❓</span>
-                    </div>
-                    """
-                    st.markdown(tooltip_html, unsafe_allow_html=True)
+                    # Use button for expander with explanation
+                    with st.expander(f"❓ {metric}", expanded=False):
+                        st.write(metric_definitions[metric])
                 with col2:
                     score = st.selectbox(
                         "Score",
@@ -215,14 +210,9 @@ def create_campaign_scorecard():
                 key = f"post_{category}_{metric}"
                 col1, col2 = st.columns([3, 2])
                 with col1:
-                    # Use markdown with HTML tooltip
-                    tooltip_html = f"""
-                    <div style="display: inline-flex; align-items: center; gap: 5px;">
-                        {metric}
-                        <span style="color: #888; cursor: help;" title="{metric_definitions[metric]}">❓</span>
-                    </div>
-                    """
-                    st.markdown(tooltip_html, unsafe_allow_html=True)
+                    # Use button for expander with explanation
+                    with st.expander(f"❓ {metric}", expanded=False):
+                        st.write(metric_definitions[metric])
                 with col2:
                     score = st.selectbox(
                         "Score",
