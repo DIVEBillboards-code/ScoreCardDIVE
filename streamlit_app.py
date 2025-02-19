@@ -25,7 +25,7 @@ def create_campaign_scorecard():
     # Create two columns for Pre and Post Campaign
     pre_col, post_col = st.columns(2)
 
-    # Pre-Campaign Metrics
+    # Pre-Campaign Metrics (Updated with new parameters)
     pre_metrics = {
         'Creative Readiness': [
             'Assets received on time',
@@ -53,6 +53,34 @@ def create_campaign_scorecard():
         'Approval & Compliance': [
             'Legal/brand compliance approved',
             'Vendor tests & pre-launch checks done'
+        ],
+        'Moderation Guidelines': [
+            'Pre-Defined Moderation Guidelines',
+            'Approval Checklist'
+        ],
+        'Moderation Script': [
+            'Pre-Moderation Review Process',
+            'Compliance Script Execution'
+        ],
+        'Moderation Workback Schedule': [
+            'Content Submission Date',
+            'Moderation Review Deadline'
+        ],
+        'Influencer Assets': [
+            'Influencer Content Submission',
+            'Influencer Content Approval'
+        ],
+        'Clients Approvals': [
+            'Client Content Submission',
+            'Client Content Approval'
+        ],
+        'Creators Approvals': [
+            'Creator Content Submission',
+            'Creator Content Approval'
+        ],
+        'TikTok Approvals': [
+            'TikTok Platform Compliance',
+            'TikTok Ad Moderation Passed'
         ]
     }
 
@@ -90,6 +118,57 @@ def create_campaign_scorecard():
         ]
     }
 
+    # Definitions for tooltips
+    metric_definitions = {
+        'Assets received on time': 'Measures if all creative assets were delivered by the scheduled date.',
+        'Storyboard approvals met deadlines': 'Checks if storyboard approvals were completed on time.',
+        'Creative meets format & resolution': 'Ensures creative assets meet required formats and resolution standards.',
+        'Workback schedule followed': 'Verifies if the production timeline was adhered to as planned.',
+        'Vendor deadlines met': 'Confirms if external vendors met their deadlines.',
+        'Final creative delivered on time': 'Ensures the final creative was delivered by the deadline.',
+        'Billboard locations confirmed': 'Verifies that billboard placements were secured and confirmed.',
+        'Placement visibility': 'Evaluates the visibility and effectiveness of ad placements.',
+        'Competitive share of voice': 'Measures the campaign’s visibility relative to competitors.',
+        'Budget fully utilized': 'Checks if the entire allocated budget was used effectively.',
+        'Number of spots booked vs planned': 'Compares booked ad spots to the planned number.',
+        'Demographic match': 'Assesses if the target audience matches the intended demographics.',
+        'Estimated reach meets expectations': 'Verifies if the campaign reached the expected audience size.',
+        'Legal/brand compliance approved': 'Ensures all content complies with legal and brand standards.',
+        'Vendor tests & pre-launch checks done': 'Confirms all pre-launch tests and checks by vendors were completed.',
+        'Pre-Defined Moderation Guidelines': 'Refers to established rules for content moderation before launch.',
+        'Approval Checklist': 'Lists required approvals for moderation processes.',
+        'Pre-Moderation Review Process': 'Evaluates content before it goes live for compliance.',
+        'Compliance Script Execution': 'Ensures scripts for compliance checks were correctly implemented.',
+        'Content Submission Date': 'Tracks when content was submitted for moderation.',
+        'Moderation Review Deadline': 'Sets the deadline for completing moderation reviews.',
+        'Influencer Content Submission': 'Monitors when influencers submit their content.',
+        'Influencer Content Approval': 'Tracks approval of influencer-submitted content.',
+        'Client Content Submission': 'Records when clients submit their content for review.',
+        'Client Content Approval': 'Confirms client content has been approved.',
+        'Creator Content Submission': 'Logs when creators submit their content.',
+        'Creator Content Approval': 'Verifies approval of content from creators.',
+        'TikTok Platform Compliance': 'Ensures content meets TikTok’s platform-specific rules.',
+        'TikTok Ad Moderation Passed': 'Confirms TikTok ads passed moderation checks.',
+        'Actual impressions vs target': 'Compares actual ad impressions to the set target.',
+        'Audience engagement rate': 'Measures how audiences interacted with the campaign.',
+        'Share of voice achieved': 'Evaluates the campaign’s market presence post-launch.',
+        'Social media mentions increased': 'Tracks growth in social media mentions.',
+        'Hashtag usage met expectations': 'Checks if hashtag usage reached expected levels.',
+        'Earned media coverage': 'Measures unsolicited media coverage gained.',
+        'Positive sentiment shift': 'Assesses improvement in audience sentiment.',
+        'UGC growth': 'Tracks growth in user-generated content related to the campaign.',
+        'Influencer engagement': 'Measures interactions and impact from influencers.',
+        'Website traffic increased': 'Evaluates if the campaign drove more website visits.',
+        'Sales lift / conversion growth': 'Measures increase in sales or conversions.',
+        'Cost per engagement met target': 'Checks if engagement costs were within targets.',
+        'High-quality images captured': 'Ensures campaign visuals meet quality standards.',
+        'Splash video created': 'Confirms a promotional video was produced.',
+        'Social media features': 'Tracks use of social media features like stories or reels.',
+        'Key wins identified': 'Highlights successful aspects of the campaign.',
+        'Areas for improvement noted': 'Identifies aspects needing enhancement.',
+        'Optimization recommendations made': 'Suggests ways to improve future campaigns.'
+    }
+
     # Score options
     score_options = {
         0: "0 - No/Poor",
@@ -106,7 +185,8 @@ def create_campaign_scorecard():
                 key = f"pre_{category}_{metric}"
                 col1, col2 = st.columns([3, 2])
                 with col1:
-                    st.write(metric)
+                    st.write(f"{metric} ❓", unsafe_allow_html=True)
+                    st.tooltip(metric_definitions[metric])
                 with col2:
                     score = st.selectbox(
                         "Score",
@@ -128,7 +208,8 @@ def create_campaign_scorecard():
                 key = f"post_{category}_{metric}"
                 col1, col2 = st.columns([3, 2])
                 with col1:
-                    st.write(metric)
+                    st.write(f"{metric} ❓", unsafe_allow_html=True)
+                    st.tooltip(metric_definitions[metric])
                 with col2:
                     score = st.selectbox(
                         "Score",
