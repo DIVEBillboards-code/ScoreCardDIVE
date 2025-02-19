@@ -6,6 +6,9 @@ import numpy as np
 from datetime import datetime
 from openpyxl.styles import Font, PatternFill
 
+# Set page configuration first
+st.set_page_config(page_title="Campaign Scorecard", layout="wide", initial_sidebar_state="collapsed")
+
 # Enhanced CSS for better UX/UI
 st.markdown("""
     <style>
@@ -321,8 +324,6 @@ def update_plot_theme(fig):
     return fig
 
 def create_campaign_scorecard():
-    st.set_page_config(page_title="Campaign Scorecard", layout="wide", initial_sidebar_state="collapsed")
-
     # Initialize session state
     if 'pre_scores' not in st.session_state:
         st.session_state.pre_scores = {}
