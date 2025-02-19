@@ -278,14 +278,22 @@ def create_campaign_scorecard():
     # Calculate improvements and declines
     improvements = []
     declines = []
+    
     for category in categories:
-        pre_score = pre_df[pre_df['Category'] == category]['Average Score'].iloc[0]
-        post_score = post_df[post_df['Category'] == category]['Average Score'].iloc[0]
-        diff = post_score - pre_score
-        if diff > 0:
-            improvements.append((category, diff))
-        elif diff < 0:
-            declines.append((category, abs(diff)))
+        try:
+            pre_scores = pre_df[pre_df['Category'] == category]['Average Score']
+            post_scores = post_df[post_df['Category'] == category]['Average Score']
+            
+            if not pre_scores.empty and not post_scores.empty:
+                pre_score = pre_scores.iloc[0]
+                post_score = post_scores.iloc[0]
+                diff = post_score - pre_score
+                if diff > 0:
+                    improvements.append((category, diff))
+                elif diff < 0:
+                    declines.append((category, abs(diff)))
+        except (IndexError, KeyError):
+            continue  # Skip if data is not available for this category
 
     # Display insights
     col1, col2 = st.columns(2)
