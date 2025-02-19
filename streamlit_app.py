@@ -6,7 +6,10 @@ import numpy as np
 from datetime import datetime
 from openpyxl.styles import Font, PatternFill
 
-# Custom CSS for styling
+# Set page config first
+st.set_page_config(page_title="Campaign Scorecard", layout="wide")
+
+# Custom CSS for styling (after page config)
 st.markdown("""
     <style>
     .stContainer {
@@ -62,8 +65,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def create_campaign_scorecard():
-    st.set_page_config(page_title="Campaign Scorecard", layout="wide")
-    st.title("Campaign Scorecard Dashboard")
+    # No need to call set_page_config here again, it's already at the top
 
     # Initialize session state for storing scores
     if 'pre_scores' not in st.session_state:
@@ -469,7 +471,7 @@ def create_campaign_scorecard():
     # Create Excel download (in a box)
     with st.container():
         st.markdown('<div class="stContainer">', unsafe_allow_html=True)
-        if st.button("Generate Report", key="generate_report", help="Download the scorecard as an Excel file", class_="stButton"):
+        if st.button("Generate Report", key="generate_report", help="Download the scorecard as an Excel file"):
             # Create DataFrame for Excel
             data = []
             
