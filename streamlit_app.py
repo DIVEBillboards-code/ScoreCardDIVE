@@ -4,6 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
 from datetime import datetime
+from openpyxl.styles import Font, PatternFill
 
 def create_campaign_scorecard():
     st.set_page_config(page_title="Campaign Scorecard", layout="wide")
@@ -185,8 +186,14 @@ def create_campaign_scorecard():
                 key = f"pre_{category}_{metric}"
                 col1, col2 = st.columns([3, 2])
                 with col1:
-                    st.write(f"{metric} ❓", unsafe_allow_html=True)
-                    st.tooltip(metric_definitions[metric])
+                    # Use markdown with HTML tooltip
+                    tooltip_html = f"""
+                    <div style="display: inline-flex; align-items: center; gap: 5px;">
+                        {metric}
+                        <span style="color: #888; cursor: help;" title="{metric_definitions[metric]}">❓</span>
+                    </div>
+                    """
+                    st.markdown(tooltip_html, unsafe_allow_html=True)
                 with col2:
                     score = st.selectbox(
                         "Score",
@@ -208,8 +215,14 @@ def create_campaign_scorecard():
                 key = f"post_{category}_{metric}"
                 col1, col2 = st.columns([3, 2])
                 with col1:
-                    st.write(f"{metric} ❓", unsafe_allow_html=True)
-                    st.tooltip(metric_definitions[metric])
+                    # Use markdown with HTML tooltip
+                    tooltip_html = f"""
+                    <div style="display: inline-flex; align-items: center; gap: 5px;">
+                        {metric}
+                        <span style="color: #888; cursor: help;" title="{metric_definitions[metric]}">❓</span>
+                    </div>
+                    """
+                    st.markdown(tooltip_html, unsafe_allow_html=True)
                 with col2:
                     score = st.selectbox(
                         "Score",
@@ -223,8 +236,8 @@ def create_campaign_scorecard():
                 st.markdown("---")
 
     # Calculate totals
-    pre_total = sum(st.session_state.pre_scores.values())
-    post_total = sum(st.session_state.post_scores.values())
+    pre_total = sum(st.session_state.pre_scores.values()) if st.session_state.pre_scores else 0
+    post_total = sum(st.session_state.post_scores.values()) if st.session_state.post_scores else 0
     pre_max = len([metric for metrics in pre_metrics.values() for metric in metrics]) * 5
     post_max = len([metric for metrics in post_metrics.values() for metric in metrics]) * 5
 
@@ -235,10 +248,10 @@ def create_campaign_scorecard():
     col1, col2 = st.columns(2)
     with col1:
         st.metric("Pre-Campaign Total", f"{pre_total}/{pre_max}")
-        st.progress(pre_total/pre_max)
+        st.progress(pre_total/pre_max if pre_max > 0 else 0)
     with col2:
         st.metric("Post-Campaign Total", f"{post_total}/{post_max}")
-        st.progress(post_total/post_max)
+        st.progress(post_total/post_max if post_max > 0 else 0)
 
     # Get unique categories from both pre and post metrics
     categories = list(set(list(pre_metrics.keys()) + list(post_metrics.keys())))
@@ -248,7 +261,7 @@ def create_campaign_scorecard():
         data = []
         for category, metrics in metrics_dict.items():
             category_scores = [scores_dict.get(f"{phase}_{category}_{metric}", 0) for metric in metrics]
-            avg_score = np.mean(category_scores)
+            avg_score = np.mean(category_scores) if category_scores else 0
             data.append({
                 'Category': category,
                 'Average Score': avg_score,
@@ -258,7 +271,7 @@ def create_campaign_scorecard():
 
     pre_df = create_category_df(st.session_state.pre_scores, pre_metrics, 'pre')
     post_df = create_category_df(st.session_state.post_scores, post_metrics, 'post')
-    combined_df = pd.concat([pre_df, post_df])
+    combined_df = pd.concat([pre_df, post_df]).dropna()
 
     # Visualization Section
     st.subheader("Data Visualizations")
@@ -269,7 +282,7 @@ def create_campaign_scorecard():
         ["Category Performance", "Radar Chart", "Score Distribution", "Phase Comparison"]
     )
 
-    if viz_type == "Category Performance":
+    if viz_type == "Category Performance" and not combined_df.empty:
         # Bar chart comparing pre and post campaign scores by category
         fig = px.bar(
             combined_df,
@@ -283,7 +296,7 @@ def create_campaign_scorecard():
         fig.update_layout(yaxis_range=[0, 5])
         st.plotly_chart(fig, use_container_width=True)
 
-    elif viz_type == "Radar Chart":
+    elif viz_type == "Radar Chart" and not pre_df.empty and not post_df.empty:
         # Radar chart showing category scores
         categories = list(pre_metrics.keys())
         pre_scores = pre_df['Average Score'].tolist()
@@ -309,24 +322,26 @@ def create_campaign_scorecard():
         )
         st.plotly_chart(fig, use_container_width=True)
 
-    elif viz_type == "Score Distribution":
+    elif viz_type == "Score Distribution" and (st.session_state.pre_scores or st.session_state.post_scores):
         # Histogram of score distribution
-        all_pre_scores = list(st.session_state.pre_scores.values())
-        all_post_scores = list(st.session_state.post_scores.values())
+        all_pre_scores = list(st.session_state.pre_scores.values()) if st.session_state.pre_scores else []
+        all_post_scores = list(st.session_state.post_scores.values()) if st.session_state.post_scores else []
         
         fig = go.Figure()
-        fig.add_trace(go.Histogram(
-            x=all_pre_scores,
-            name='Pre-Campaign',
-            nbinsx=3,
-            opacity=0.7
-        ))
-        fig.add_trace(go.Histogram(
-            x=all_post_scores,
-            name='Post-Campaign',
-            nbinsx=3,
-            opacity=0.7
-        ))
+        if all_pre_scores:
+            fig.add_trace(go.Histogram(
+                x=all_pre_scores,
+                name='Pre-Campaign',
+                nbinsx=3,
+                opacity=0.7
+            ))
+        if all_post_scores:
+            fig.add_trace(go.Histogram(
+                x=all_post_scores,
+                name='Post-Campaign',
+                nbinsx=3,
+                opacity=0.7
+            ))
         fig.update_layout(
             barmode='overlay',
             title='Score Distribution',
@@ -335,9 +350,8 @@ def create_campaign_scorecard():
         )
         st.plotly_chart(fig, use_container_width=True)
 
-    elif viz_type == "Phase Comparison":
+    elif viz_type == "Phase Comparison" and not combined_df.empty:
         # Scatter plot comparing pre vs post scores
-        categories = list(pre_metrics.keys())
         fig = px.scatter(
             combined_df,
             x='Category',
@@ -362,17 +376,14 @@ def create_campaign_scorecard():
     
     for category in categories:
         try:
-            pre_scores = pre_df[pre_df['Category'] == category]['Average Score']
-            post_scores = post_df[post_df['Category'] == category]['Average Score']
+            pre_score = pre_df[pre_df['Category'] == category]['Average Score'].iloc[0] if not pre_df[pre_df['Category'] == category].empty else 0
+            post_score = post_df[post_df['Category'] == category]['Average Score'].iloc[0] if not post_df[post_df['Category'] == category].empty else 0
             
-            if not pre_scores.empty and not post_scores.empty:
-                pre_score = pre_scores.iloc[0]
-                post_score = post_scores.iloc[0]
-                diff = post_score - pre_score
-                if diff > 0:
-                    improvements.append((category, diff))
-                elif diff < 0:
-                    declines.append((category, abs(diff)))
+            diff = post_score - pre_score
+            if diff > 0:
+                improvements.append((category, diff))
+            elif diff < 0:
+                declines.append((category, abs(diff)))
         except (IndexError, KeyError):
             continue  # Skip if data is not available for this category
 
@@ -453,7 +464,6 @@ def create_campaign_scorecard():
             worksheet = writer.sheets['Sheet1']
             
             # Add some styling
-            from openpyxl.styles import Font, PatternFill
             header_fill = PatternFill(start_color='CCCCCC', end_color='CCCCCC', fill_type='solid')
             
             # Style headers
