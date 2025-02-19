@@ -7,64 +7,148 @@ from datetime import datetime
 from openpyxl.styles import Font, PatternFill
 
 # Set page config first
-st.set_page_config(page_title="Campaign Scorecard", layout="wide")
+st.set_page_config(
+    page_title="Campaign Scorecard",
+    layout="wide",
+    initial_sidebar_state="expanded"  # Show sidebar by default
+)
 
-# Custom CSS for styling (after page config)
+# Enhanced CSS for better visual hierarchy and user experience
 st.markdown("""
     <style>
+    /* Base styles with improved readability */
+    * {
+        font-family: 'Inter', sans-serif;
+    }
+    
+    /* Improved container styling */
     .stContainer {
-        border: 2px solid #e0e0e0;
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        background-color: white;
+        transition: all 0.3s ease;
+    }
+    .stContainer:hover {
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        background-color: #f5f5f5;
     }
+    
+    /* Enhanced header styling */
     .stHeader {
-        color: white; /* Changed to white for contrast with #0066ff */
-        font-size: 24px;
-        font-weight: bold;
-        background-color: #0066ff;
-        padding: 10px;
-        border-radius: 5px;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+        padding: 16px;
+        border-radius: 8px;
         text-align: center;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 102, 255, 0.2);
     }
+    
+    /* Improved subheader styling */
     .stSubheader {
-        color: #003399;
-        font-size: 20px;
-        font-weight: bold;
-        margin-top: 10px;
+        color: #1a1a1a;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 16px 0;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #0066ff;
     }
+    
+    /* Enhanced metric container */
     .stMetric {
         background-color: white;
-        padding: 15px;
-        border-radius: 5px;
+        padding: 20px;
+        border-radius: 8px;
         border: 1px solid #e0e0e0;
+        transition: transform 0.2s ease;
     }
-    .stButton {
-        background-color: #0066ff;
-        color: white; /* Changed to white for contrast with #0066ff */
-        border-radius: 5px;
-        padding: 10px 20px;
+    .stMetric:hover {
+        transform: translateY(-2px);
+    }
+    
+    /* Improved button styling */
+    .stButton > button {
+        background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+        color: white;
+        border-radius: 8px;
+        padding: 12px 24px;
         border: none;
-        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        width: 100%;
     }
-    .stButton:hover {
-        background-color: #0052cc;
-        color: white; /* Ensure text remains white on hover */
+    .stButton > button:hover {
+        background: linear-gradient(135deg, #0052cc 0%, #003d99 100%);
+        box-shadow: 0 4px 8px rgba(0, 102, 255, 0.2);
     }
-    .stProgress {
-        background-color: #e0e0e0;
-        border-radius: 5px;
+    
+    /* Enhanced progress bar */
+    .stProgress > div > div {
+        background-color: #0066ff;
+        border-radius: 4px;
     }
-    .stExpander {
+    
+    /* Improved expander styling */
+    .streamlit-expanderHeader {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-weight: 500;
+    }
+    .streamlit-expanderHeader:hover {
+        background-color: #f0f2f5;
+    }
+    
+    /* Enhanced input fields */
+    .stTextInput > div > div > input {
+        border-radius: 8px;
         border: 1px solid #e0e0e0;
-        border-radius: 5px;
-        margin-bottom: 10px;
+        padding: 8px 12px;
+        transition: all 0.3s ease;
+    }
+    .stTextInput > div > div > input:focus {
+        border-color: #0066ff;
+        box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.1);
+    }
+    
+    /* Improved selectbox styling */
+    .stSelectbox > div > div > select {
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        padding: 8px 12px;
+    }
+    
+    /* Enhanced text area */
+    .stTextArea > div > div > textarea {
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        padding: 8px 12px;
+        min-height: 100px;
+    }
+    
+    /* Improved tooltip */
+    .stTooltipIcon {
+        color: #0066ff;
+    }
+    
+    /* Enhanced divider */
+    hr {
+        border: none;
+        height: 1px;
+        background: linear-gradient(to right, transparent, #e0e0e0, transparent);
+        margin: 20px 0;
+    }
+    
+    /* Loading animation */
+    .stSpinner > div {
+        border-color: #0066ff;
     }
     </style>
 """, unsafe_allow_html=True)
-
 def create_campaign_scorecard():
     # No need to call set_page_config here again, it's already at the top
 
