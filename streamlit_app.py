@@ -229,6 +229,37 @@ st.markdown("""
     tr:last-child td {
         border-bottom: none;
     }
+
+/* New style for Post-Campaign container */
+    .stContainer-post {
+        border: 1px solid var(--gray-300);
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 28px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        background-color: #f0f0f0; /* Light gray background */
+        transition: all 0.3s ease;
+    }
+    .stContainer-post:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    /* Ensure other styles don't override this */
+    .stContainer {
+        /* Original container style remains for Pre-Campaign */
+        border: 1px solid var(--gray-300);
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 28px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        background-color: white; /* Default white background for Pre-Campaign */
+        transition: all 0.3s ease;
+    }
+    .stContainer:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
     
     /* Animation for content loading */
     @keyframes fadeIn {
@@ -461,10 +492,12 @@ def create_campaign_scorecard():
                     st.markdown('<hr style="border: 1px solid #e0e0e0; margin: 10px 0;">', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
-    # Post-Campaign Section (in a box)
+   # In the create_campaign_scorecard function, find the Post-Campaign Section and replace it with this:
+
+    # Post-Campaign Section (with new background)
     with post_col:
         with st.container():
-            st.markdown('<div class="stContainer"><div class="stHeader">Post-Campaign Scorecard</div>', unsafe_allow_html=True)
+            st.markdown('<div class="stContainer-post"><div class="stHeader">Post-Campaign Scorecard</div>', unsafe_allow_html=True)
             for category, metrics in post_metrics.items():
                 st.markdown(f'<div class="stSubheader">{category}</div>', unsafe_allow_html=True)
                 for metric in metrics:
