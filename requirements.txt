@@ -1,9 +1,8 @@
-streamlit>=1.32.0
+streamlit>=1.31.0
 pandas>=2.2.0
+numpy>=1.26.0
 plotly>=5.18.0
-numpy>=1.24.0
 openpyxl>=3.1.2
-Pillow>=10.0.0  # For image processing
-python-dateutil>=2.8.2  # For date handling
-altair>=5.2.0  # For additional visualization options
-matplotlib>=3.8.0  # For additional plotting capabilities
+python-dateutil>=2.8.2
+pillow>=10.2.0  # For image processing
+matplotlib>=3.8.0  # Additional plotting capabilities
