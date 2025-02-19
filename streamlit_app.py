@@ -306,7 +306,7 @@ def update_plot_theme(fig):
         title_font_size=22,
         title_font_family="Inter, -apple-system, BlinkMacSystemFont, sans-serif",
         title_font_color="#0066ff",
-        plot_bgcolor="rgba(248, 249, 250, 0.8)",
+        plot_bgcolor='rgba(0,0,0,0)',  # Transparent plot background for cleaner look
         paper_bgcolor="white",
         hovermode="x unified",
         showlegend=True,
@@ -316,8 +316,7 @@ def update_plot_theme(fig):
             borderwidth=1,
             font=dict(size=14, color="#333333")
         ),
-        margin=dict(t=60, b=60, l=60, r=60),
-        plot_bgcolor='rgba(0,0,0,0)',  # Transparent plot background for cleaner look
+        margin=dict(t=60, b=60, l=60, r=60)
     )
     return fig
 
