@@ -24,13 +24,13 @@ st.markdown("""
         color: #333;
         font-size: 24px;
         font-weight: bold;
-        background-color: #00ff66;
+        background-color: #0066ff;
         padding: 10px;
         border-radius: 5px;
         text-align: center;
     }
     .stSubheader {
-        color: #006633;
+        color: #003399;
         font-size: 20px;
         font-weight: bold;
         margin-top: 10px;
@@ -42,7 +42,7 @@ st.markdown("""
         border: 1px solid #e0e0e0;
     }
     .stButton {
-        background-color: #00ff66;
+        background-color: #0066ff;
         color: white;
         border-radius: 5px;
         padding: 10px 20px;
@@ -50,7 +50,7 @@ st.markdown("""
         cursor: pointer;
     }
     .stButton:hover {
-        background-color: #00cc55;
+        background-color: #0052cc;
     }
     .stProgress {
         background-color: #e0e0e0;
@@ -383,7 +383,7 @@ def create_campaign_scorecard():
                 name='Post-Campaign'
             ))
             fig.update_layout(
-                polar=dict(radialaxis=dict(visible=True, range=[0, 5], color="#006633")),
+                polar=dict(radialaxis=dict(visible=True, range=[0, 5], color="#003399")),
                 showlegend=True,
                 title='Radar Chart: Category Scores',
                 plot_bgcolor='#f5f5f5',
@@ -402,7 +402,7 @@ def create_campaign_scorecard():
                     x=all_pre_scores,
                     name='Pre-Campaign',
                     nbinsx=3,
-                    marker_color='#00ff66',
+                    marker_color='#0066ff',
                     opacity=0.7
                 ))
             if all_post_scores:
@@ -410,7 +410,7 @@ def create_campaign_scorecard():
                     x=all_post_scores,
                     name='Post-Campaign',
                     nbinsx=3,
-                    marker_color='#006633',
+                    marker_color='#003399',
                     opacity=0.7
                 ))
             fig.update_layout(
@@ -439,7 +439,7 @@ def create_campaign_scorecard():
                 showlegend=True,
                 plot_bgcolor='#f5f5f5',
                 paper_bgcolor='#f5f5f5',
-                marker_color='#00ff66'
+                marker_color='#0066ff'
             )
             st.plotly_chart(fig, use_container_width=True)
 
