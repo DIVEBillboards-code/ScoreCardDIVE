@@ -230,7 +230,7 @@ st.markdown("""
         border-bottom: none;
     }
 
-/* New style for Post-Campaign container */
+    /* New style for Post-Campaign container */
     .stContainer-post {
         border: 1px solid var(--gray-300);
         border-radius: 16px;
@@ -695,13 +695,16 @@ def create_campaign_scorecard():
                 title='Pre vs Post Campaign Score Comparison',
                 height=500
             )
+            
+            # Update trace to set marker color
+            fig.update_traces(marker=dict(color='#0066ff'), selector=dict(type='scatter'))
+            
             fig.update_layout(
                 xaxis_tickangle=-45,
                 yaxis_range=[0, 5],
                 showlegend=True,
                 plot_bgcolor='#f5f5f5',
-                paper_bgcolor='#f5f5f5',
-                marker_color='#0066ff'
+                paper_bgcolor='#f5f5f5'
             )
             st.plotly_chart(fig, use_container_width=True)
 
