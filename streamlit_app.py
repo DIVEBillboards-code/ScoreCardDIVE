@@ -4,7 +4,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
 from datetime import datetime
-from openpyxl.styles import Font, PatternFill
 
 def create_campaign_scorecard():
     st.set_page_config(page_title="Campaign Scorecard", layout="wide")
@@ -26,7 +25,7 @@ def create_campaign_scorecard():
     # Create two columns for Pre and Post Campaign
     pre_col, post_col = st.columns(2)
 
-    # Pre-Campaign Metrics (Updated with new parameters)
+    # Pre-Campaign Metrics
     pre_metrics = {
         'Creative Readiness': [
             'Assets received on time',
@@ -54,34 +53,6 @@ def create_campaign_scorecard():
         'Approval & Compliance': [
             'Legal/brand compliance approved',
             'Vendor tests & pre-launch checks done'
-        ],
-        'Moderation Guidelines': [
-            'Pre-Defined Moderation Guidelines',
-            'Approval Checklist'
-        ],
-        'Moderation Script': [
-            'Pre-Moderation Review Process',
-            'Compliance Script Execution'
-        ],
-        'Moderation Workback Schedule': [
-            'Content Submission Date',
-            'Moderation Review Deadline'
-        ],
-        'Influencer Assets': [
-            'Influencer Content Submission',
-            'Influencer Content Approval'
-        ],
-        'Clients Approvals': [
-            'Client Content Submission',
-            'Client Content Approval'
-        ],
-        'Creators Approvals': [
-            'Creator Content Submission',
-            'Creator Content Approval'
-        ],
-        'TikTok Approvals': [
-            'TikTok Platform Compliance',
-            'TikTok Ad Moderation Passed'
         ]
     }
 
@@ -119,57 +90,6 @@ def create_campaign_scorecard():
         ]
     }
 
-    # Definitions for tooltips
-    metric_definitions = {
-        'Assets received on time': 'Measures if all creative assets were delivered by the scheduled date.',
-        'Storyboard approvals met deadlines': 'Checks if storyboard approvals were completed on time.',
-        'Creative meets format & resolution': 'Ensures creative assets meet required formats and resolution standards.',
-        'Workback schedule followed': 'Verifies if the production timeline was adhered to as planned.',
-        'Vendor deadlines met': 'Confirms if external vendors met their deadlines.',
-        'Final creative delivered on time': 'Ensures the final creative was delivered by the deadline.',
-        'Billboard locations confirmed': 'Verifies that billboard placements were secured and confirmed.',
-        'Placement visibility': 'Evaluates the visibility and effectiveness of ad placements.',
-        'Competitive share of voice': 'Measures the campaign’s visibility relative to competitors.',
-        'Budget fully utilized': 'Checks if the entire allocated budget was used effectively.',
-        'Number of spots booked vs planned': 'Compares booked ad spots to the planned number.',
-        'Demographic match': 'Assesses if the target audience matches the intended demographics.',
-        'Estimated reach meets expectations': 'Verifies if the campaign reached the expected audience size.',
-        'Legal/brand compliance approved': 'Ensures all content complies with legal and brand standards.',
-        'Vendor tests & pre-launch checks done': 'Confirms all pre-launch tests and checks by vendors were completed.',
-        'Pre-Defined Moderation Guidelines': 'Refers to established rules for content moderation before launch.',
-        'Approval Checklist': 'Lists required approvals for moderation processes.',
-        'Pre-Moderation Review Process': 'Evaluates content before it goes live for compliance.',
-        'Compliance Script Execution': 'Ensures scripts for compliance checks were correctly implemented.',
-        'Content Submission Date': 'Tracks when content was submitted for moderation.',
-        'Moderation Review Deadline': 'Sets the deadline for completing moderation reviews.',
-        'Influencer Content Submission': 'Monitors when influencers submit their content.',
-        'Influencer Content Approval': 'Tracks approval of influencer-submitted content.',
-        'Client Content Submission': 'Records when clients submit their content for review.',
-        'Client Content Approval': 'Confirms client content has been approved.',
-        'Creator Content Submission': 'Logs when creators submit their content.',
-        'Creator Content Approval': 'Verifies approval of content from creators.',
-        'TikTok Platform Compliance': 'Ensures content meets TikTok’s platform-specific rules.',
-        'TikTok Ad Moderation Passed': 'Confirms TikTok ads passed moderation checks.',
-        'Actual impressions vs target': 'Compares actual ad impressions to the set target.',
-        'Audience engagement rate': 'Measures how audiences interacted with the campaign.',
-        'Share of voice achieved': 'Evaluates the campaign’s market presence post-launch.',
-        'Social media mentions increased': 'Tracks growth in social media mentions.',
-        'Hashtag usage met expectations': 'Checks if hashtag usage reached expected levels.',
-        'Earned media coverage': 'Measures unsolicited media coverage gained.',
-        'Positive sentiment shift': 'Assesses improvement in audience sentiment.',
-        'UGC growth': 'Tracks growth in user-generated content related to the campaign.',
-        'Influencer engagement': 'Measures interactions and impact from influencers.',
-        'Website traffic increased': 'Evaluates if the campaign drove more website visits.',
-        'Sales lift / conversion growth': 'Measures increase in sales or conversions.',
-        'Cost per engagement met target': 'Checks if engagement costs were within targets.',
-        'High-quality images captured': 'Ensures campaign visuals meet quality standards.',
-        'Splash video created': 'Confirms a promotional video was produced.',
-        'Social media features': 'Tracks use of social media features like stories or reels.',
-        'Key wins identified': 'Highlights successful aspects of the campaign.',
-        'Areas for improvement noted': 'Identifies aspects needing enhancement.',
-        'Optimization recommendations made': 'Suggests ways to improve future campaigns.'
-    }
-
     # Score options
     score_options = {
         0: "0 - No/Poor",
@@ -186,9 +106,7 @@ def create_campaign_scorecard():
                 key = f"pre_{category}_{metric}"
                 col1, col2 = st.columns([3, 2])
                 with col1:
-                    # Use button for expander with explanation
-                    with st.expander(f"❓ {metric}", expanded=False):
-                        st.write(metric_definitions[metric])
+                    st.write(metric)
                 with col2:
                     score = st.selectbox(
                         "Score",
@@ -210,9 +128,7 @@ def create_campaign_scorecard():
                 key = f"post_{category}_{metric}"
                 col1, col2 = st.columns([3, 2])
                 with col1:
-                    # Use button for expander with explanation
-                    with st.expander(f"❓ {metric}", expanded=False):
-                        st.write(metric_definitions[metric])
+                    st.write(metric)
                 with col2:
                     score = st.selectbox(
                         "Score",
@@ -226,8 +142,8 @@ def create_campaign_scorecard():
                 st.markdown("---")
 
     # Calculate totals
-    pre_total = sum(st.session_state.pre_scores.values()) if st.session_state.pre_scores else 0
-    post_total = sum(st.session_state.post_scores.values()) if st.session_state.post_scores else 0
+    pre_total = sum(st.session_state.pre_scores.values())
+    post_total = sum(st.session_state.post_scores.values())
     pre_max = len([metric for metrics in pre_metrics.values() for metric in metrics]) * 5
     post_max = len([metric for metrics in post_metrics.values() for metric in metrics]) * 5
 
@@ -238,10 +154,10 @@ def create_campaign_scorecard():
     col1, col2 = st.columns(2)
     with col1:
         st.metric("Pre-Campaign Total", f"{pre_total}/{pre_max}")
-        st.progress(pre_total/pre_max if pre_max > 0 else 0)
+        st.progress(pre_total/pre_max)
     with col2:
         st.metric("Post-Campaign Total", f"{post_total}/{post_max}")
-        st.progress(post_total/post_max if post_max > 0 else 0)
+        st.progress(post_total/post_max)
 
     # Get unique categories from both pre and post metrics
     categories = list(set(list(pre_metrics.keys()) + list(post_metrics.keys())))
@@ -251,7 +167,7 @@ def create_campaign_scorecard():
         data = []
         for category, metrics in metrics_dict.items():
             category_scores = [scores_dict.get(f"{phase}_{category}_{metric}", 0) for metric in metrics]
-            avg_score = np.mean(category_scores) if category_scores else 0
+            avg_score = np.mean(category_scores)
             data.append({
                 'Category': category,
                 'Average Score': avg_score,
@@ -261,7 +177,7 @@ def create_campaign_scorecard():
 
     pre_df = create_category_df(st.session_state.pre_scores, pre_metrics, 'pre')
     post_df = create_category_df(st.session_state.post_scores, post_metrics, 'post')
-    combined_df = pd.concat([pre_df, post_df]).dropna()
+    combined_df = pd.concat([pre_df, post_df])
 
     # Visualization Section
     st.subheader("Data Visualizations")
@@ -272,7 +188,7 @@ def create_campaign_scorecard():
         ["Category Performance", "Radar Chart", "Score Distribution", "Phase Comparison"]
     )
 
-    if viz_type == "Category Performance" and not combined_df.empty:
+    if viz_type == "Category Performance":
         # Bar chart comparing pre and post campaign scores by category
         fig = px.bar(
             combined_df,
@@ -286,7 +202,7 @@ def create_campaign_scorecard():
         fig.update_layout(yaxis_range=[0, 5])
         st.plotly_chart(fig, use_container_width=True)
 
-    elif viz_type == "Radar Chart" and not pre_df.empty and not post_df.empty:
+    elif viz_type == "Radar Chart":
         # Radar chart showing category scores
         categories = list(pre_metrics.keys())
         pre_scores = pre_df['Average Score'].tolist()
@@ -312,26 +228,24 @@ def create_campaign_scorecard():
         )
         st.plotly_chart(fig, use_container_width=True)
 
-    elif viz_type == "Score Distribution" and (st.session_state.pre_scores or st.session_state.post_scores):
+    elif viz_type == "Score Distribution":
         # Histogram of score distribution
-        all_pre_scores = list(st.session_state.pre_scores.values()) if st.session_state.pre_scores else []
-        all_post_scores = list(st.session_state.post_scores.values()) if st.session_state.post_scores else []
+        all_pre_scores = list(st.session_state.pre_scores.values())
+        all_post_scores = list(st.session_state.post_scores.values())
         
         fig = go.Figure()
-        if all_pre_scores:
-            fig.add_trace(go.Histogram(
-                x=all_pre_scores,
-                name='Pre-Campaign',
-                nbinsx=3,
-                opacity=0.7
-            ))
-        if all_post_scores:
-            fig.add_trace(go.Histogram(
-                x=all_post_scores,
-                name='Post-Campaign',
-                nbinsx=3,
-                opacity=0.7
-            ))
+        fig.add_trace(go.Histogram(
+            x=all_pre_scores,
+            name='Pre-Campaign',
+            nbinsx=3,
+            opacity=0.7
+        ))
+        fig.add_trace(go.Histogram(
+            x=all_post_scores,
+            name='Post-Campaign',
+            nbinsx=3,
+            opacity=0.7
+        ))
         fig.update_layout(
             barmode='overlay',
             title='Score Distribution',
@@ -340,8 +254,9 @@ def create_campaign_scorecard():
         )
         st.plotly_chart(fig, use_container_width=True)
 
-    elif viz_type == "Phase Comparison" and not combined_df.empty:
+    elif viz_type == "Phase Comparison":
         # Scatter plot comparing pre vs post scores
+        categories = list(pre_metrics.keys())
         fig = px.scatter(
             combined_df,
             x='Category',
@@ -366,14 +281,17 @@ def create_campaign_scorecard():
     
     for category in categories:
         try:
-            pre_score = pre_df[pre_df['Category'] == category]['Average Score'].iloc[0] if not pre_df[pre_df['Category'] == category].empty else 0
-            post_score = post_df[post_df['Category'] == category]['Average Score'].iloc[0] if not post_df[post_df['Category'] == category].empty else 0
+            pre_scores = pre_df[pre_df['Category'] == category]['Average Score']
+            post_scores = post_df[post_df['Category'] == category]['Average Score']
             
-            diff = post_score - pre_score
-            if diff > 0:
-                improvements.append((category, diff))
-            elif diff < 0:
-                declines.append((category, abs(diff)))
+            if not pre_scores.empty and not post_scores.empty:
+                pre_score = pre_scores.iloc[0]
+                post_score = post_scores.iloc[0]
+                diff = post_score - pre_score
+                if diff > 0:
+                    improvements.append((category, diff))
+                elif diff < 0:
+                    declines.append((category, abs(diff)))
         except (IndexError, KeyError):
             continue  # Skip if data is not available for this category
 
@@ -454,6 +372,7 @@ def create_campaign_scorecard():
             worksheet = writer.sheets['Sheet1']
             
             # Add some styling
+            from openpyxl.styles import Font, PatternFill
             header_fill = PatternFill(start_color='CCCCCC', end_color='CCCCCC', fill_type='solid')
             
             # Style headers
