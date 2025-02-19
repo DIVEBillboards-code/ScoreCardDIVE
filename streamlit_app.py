@@ -92,15 +92,24 @@ st.markdown("""
         border-radius: 4px;
     }
     
-    /* Improved expander styling */
+    /* Improved expander styling with blue colors */
     .streamlit-expanderHeader {
         background-color: #f8f9fa;
         border-radius: 8px;
         padding: 10px 15px;
         font-weight: 500;
+        color: #0066ff !important;
     }
     .streamlit-expanderHeader:hover {
         background-color: #f0f2f5;
+    }
+    /* Style for the question mark and text */
+    .streamlit-expanderHeader svg {
+        fill: #0066ff !important;
+    }
+    /* Override Streamlit's default expander colors */
+    .streamlit-expanderContent {
+        color: #0066ff !important;
     }
     
     /* Enhanced input fields */
@@ -149,6 +158,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
 def create_campaign_scorecard():
     # No need to call set_page_config here again, it's already at the top
 
