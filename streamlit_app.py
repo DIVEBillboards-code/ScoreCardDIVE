@@ -368,11 +368,13 @@ def create_campaign_scorecard():
     # Add insights based on the data
     st.subheader("Key Insights")
     
-    # Calculate improvements and declines (in percentages for consistency)
+    # Calculate improvements and declines (in percentages for consistency), only for categories with both pre and post data
     improvements = []
     declines = []
     
-    for category in categories:
+    common_categories = set(pre_df['Category']).intersection(set(post_df['Category']))
+    
+    for category in common_categories:
         try:
             pre_score = pre_df[pre_df['Category'] == category]['Average Score'].iloc[0] if not pre_df[pre_df['Category'] == category].empty else 0
             post_score = post_df[post_df['Category'] == category]['Average Score'].iloc[0] if not post_df[post_df['Category'] == category].empty else 0
@@ -381,11 +383,17 @@ def create_campaign_scorecard():
             pre_percent = (pre_score / 5) * 100 if pre_score > 0 else 0
             post_percent = (post_score / 5) * 100 if post_score > 0 else 0
             
-            diff = post_percent - pre_percent
-            if diff > 0:
-                improvements.append((category, diff))
-            elif diff < 0:
-                declines.append((category, abs(diff)))
+            # Avoid division by zero or unrealistic declines
+            if pre_percent == 0 and post_percent == 0:
+                continue  # Skip if both are 0 (no change)
+            elif pre_percent == 0 and post_percent > 0:
+                improvements.append((category, post_percent))  # Full improvement if pre was 0
+            else:
+                diff = post_percent - pre_percent
+                if diff > 0:
+                    improvements.append((category, diff))
+                elif diff < 0:
+                    declines.append((category, abs(diff)))
         except (IndexError, KeyError):
             continue  # Skip if data is not available for this category
 
