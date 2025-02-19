@@ -244,22 +244,6 @@ st.markdown("""
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
         transform: translateY(-2px);
     }
-
-    /* Ensure other styles don't override this */
-    .stContainer {
-        /* Original container style remains for Pre-Campaign */
-        border: 1px solid var(--gray-300);
-        border-radius: 16px;
-        padding: 28px;
-        margin-bottom: 28px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        background-color: white; /* Default white background for Pre-Campaign */
-        transition: all 0.3s ease;
-    }
-    .stContainer:hover {
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
-    }
     
     /* Animation for content loading */
     @keyframes fadeIn {
@@ -374,7 +358,6 @@ def create_campaign_scorecard():
             'TikTok Ad Moderation Passed'
         ]
     }
-
     # Post-Campaign Metrics
     post_metrics = {
         'Impressions & Reach': [
@@ -459,7 +442,6 @@ def create_campaign_scorecard():
         'Areas for improvement noted': 'Identifies aspects needing enhancement.',
         'Optimization recommendations made': 'Suggests ways to improve future campaigns.'
     }
-
     # Score options
     score_options = {
         0: "0 - No/Poor",
@@ -552,7 +534,6 @@ def create_campaign_scorecard():
     pre_df = create_category_df(st.session_state.pre_scores, pre_metrics, 'pre')
     post_df = create_category_df(st.session_state.post_scores, post_metrics, 'post')
     combined_df = pd.concat([pre_df, post_df]).dropna()
-
     # Calculate improvements and declines (in percentages for consistency), only for categories with both pre and post data
     improvements = []
     declines = []
@@ -660,147 +641,57 @@ def create_campaign_scorecard():
             
             fig = go.Figure()
             if all_pre_scores:
-                fig.add_trace(go.Histogram(
-                    x=all_pre_scores,
-                    name='Pre-Campaign',
-                    nbinsx=3,
-                    marker_color='#0066ff',
-                    opacity=0.7
-                ))
-            if all_post_scores:
-                fig.add_trace(go.Histogram(
-                    x=all_post_scores,
-                    name='Post-Campaign',
-                    nbinsx=3,
-                    marker_color='#003399',
-                    opacity=0.7
-                ))
-            fig.update_layout(
-                barmode='overlay',
-                title='Score Distribution',
-                xaxis_title='Score',
-                yaxis_title='Count',
-                plot_bgcolor='#f5f5f5',
-                paper_bgcolor='#f5f5f5'
-            )
-            st.plotly_chart(fig, use_container_width=True)
-
-        elif viz_type == "Phase Comparison" and not combined_df.empty:
-            # Scatter plot comparing pre vs post scores
-            fig = px.scatter(
-                combined_df,
-                x='Category',
-                y='Average Score',
-                color='Phase',
-                title='Pre vs Post Campaign Score Comparison',
-                height=500
-            )
-            fig.update_layout(
-                xaxis_tickangle=-45,
-                yaxis_range=[0, 5],
-                showlegend=True,
-                plot_bgcolor='#f5f5f5',
-                paper_bgcolor='#f5f5f5',
-                marker_color='#0066ff'
-            )
-            st.plotly_chart(fig, use_container_width=True)
-
-        # Add insights based on the data (in a box)
-        with st.container():
-            st.markdown('<div class="stContainer"><div class="stHeader">Key Insights</div>', unsafe_allow_html=True)
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("**Top Improvements:**")
-                if improvements:
-                    improvements.sort(key=lambda x: x[1], reverse=True)
-                    for category, diff in improvements[:3]:
-                        st.write(f"• {category}: +{diff:.1f}%")
-                else:
-                    st.write("No improvements detected")
-
-            with col2:
-                st.markdown("**Areas for Focus:**")
-                if declines:
-                    declines.sort(key=lambda x: x[1], reverse=True)
-                    for category, diff in declines[:3]:
-                        st.write(f"• {category}: -{diff:.1f}%")
-                else:
-                    st.write("No declines detected")
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # Create Excel download (in a box)
-    with st.container():
-        st.markdown('<div class="stContainer">', unsafe_allow_html=True)
-        if st.button("Generate Report", key="generate_report", help="Download the scorecard as an Excel file"):
-            # Create DataFrame for Excel
-            data = []
-            
-            # Add campaign info with new fields
-            data.append(["Campaign Information", "", "", ""])
-            data.append(["Campaign Name", campaign_name, "", ""])
-            data.append(["Campaign Date", campaign_date.strftime("%Y-%m-%d"), "", ""])
-            data.append(["Start Date", start_date.strftime("%Y-%m-%d"), "", ""])
-            data.append(["End Date", end_date.strftime("%Y-%m-%d"), "", ""])
-            data.append(["Client Name", client_name, "", ""])
-            data.append(["Country", country, "", ""])
-            data.append(["Cities", cities, "", ""])
+                fig.add_trace(go
+            # Add insights to Excel report
             data.append(["", "", "", ""])
-            
-            # Add Pre-Campaign data
-            data.append(["Pre-Campaign Scorecard", "", "", ""])
-            data.append(["Category", "Metric", "Score", "Comments"])
-            for category, metrics in pre_metrics.items():
-                for metric in metrics:
-                    key = f"pre_{category}_{metric}"
-                    data.append([
-                        category,
-                        metric,
-                        st.session_state.pre_scores.get(key, 0),
-                        st.session_state.comments.get(key, "")
-                    ])
-            
-            # Add Post-Campaign data
+            data.append(["Key Insights", "", "", ""])
+            data.append(["Top Improvements", "", "", ""])
+            if improvements:
+                improvements.sort(key=lambda x: x[1], reverse=True)
+                for category, diff in improvements[:3]:
+                    data.append([f"• {category}", f"+{diff:.1f}%", "", ""])
+            else:
+                data.append(["No improvements detected", "", "", ""])
+
             data.append(["", "", "", ""])
-            data.append(["Post-Campaign Scorecard", "", "", ""])
-            data.append(["Category", "Metric", "Score", "Comments"])
-            for category, metrics in post_metrics.items():
-                for metric in metrics:
-                    key = f"post_{category}_{metric}"
-                    data.append([
-                        category,
-                        metric,
-                        st.session_state.post_scores.get(key, 0),
-                        st.session_state.comments.get(key, "")
-                    ])
-            
-            # Add totals as percentages
-            data.append(["", "", "", ""])
-            data.append(["Score Summary", "", "", ""])
-            data.append(["Pre-Campaign Score", f"{pre_percentage:.1f}%", "", ""])
-            data.append(["Post-Campaign Score", f"{post_percentage:.1f}%", "", ""])
-            
+            data.append(["Areas for Focus", "", "", ""])
+            if declines:
+                declines.sort(key=lambda x: x[1], reverse=True)
+                for category, diff in declines[:3]:
+                    data.append([f"• {category}", f"-{diff:.1f}%", "", ""])
+            else:
+                data.append(["No declines detected", "", "", ""])
+
             # Create DataFrame and Excel file
             df = pd.DataFrame(data)
             excel_file = f"campaign_scorecard_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
-            
+
             # Create Excel writer
             with pd.ExcelWriter(excel_file, engine='openpyxl') as writer:
                 df.to_excel(writer, index=False, header=False)
-                
+
                 # Get workbook and worksheet
                 workbook = writer.book
                 worksheet = writer.sheets['Sheet1']
-                
+
                 # Add some styling
                 header_fill = PatternFill(start_color='CCCCCC', end_color='CCCCCC', fill_type='solid')
-                
+
                 # Style headers
                 for cell in worksheet['1:1']:
                     cell.font = Font(bold=True)
                     cell.fill = header_fill
-            
+
+                # Adjust column widths for better readability
+                for column_letter in ['A', 'B', 'C', 'D']:
+                    worksheet.column_dimensions[column_letter].width = 30
+
+                # Style score summary and insights sections
+                start_row = len(pre_metrics) + len(post_metrics) + 10  # Adjust as needed
+                for cell in worksheet[f'{start_row}:{start_row}']:
+                    cell.font = Font(bold=True)
+                    cell.fill = header_fill
+
             # Create download button
             with open(excel_file, 'rb') as f:
                 st.download_button(
