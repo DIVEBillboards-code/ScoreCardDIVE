@@ -7,25 +7,16 @@ from datetime import datetime
 from openpyxl.styles import Font, PatternFill
 
 def set_page_style():
-    # Custom CSS with #0066ff branding
     st.markdown("""
         <style>
         /* Main theme color: #0066ff */
-        .main {
-            background-color: #f8f9fa;
-        }
+        .main { background-color: #f8f9fa; }
         
-        /* Header Styling */
-        .stApp header {
-            background-color: #0066ff !important;
-        }
-        
-        h1, h2, h3 {
+        h1, h2, h3 { 
             color: #0066ff;
             padding: 0.5rem 0;
         }
         
-        /* Card styling */
         .metric-card {
             background-color: white;
             padding: 1.5rem;
@@ -35,90 +26,51 @@ def set_page_style():
             border-left: 4px solid #0066ff;
         }
         
-        /* Button styling */
         .stButton > button {
             background-color: #0066ff !important;
             color: white !important;
             border-radius: 6px !important;
-            padding: 0.5rem 1.5rem !important;
-            font-weight: 500 !important;
-            border: none !important;
-            transition: all 0.3s ease !important;
         }
         
-        .stButton > button:hover {
-            background-color: #0052cc !important;
-            box-shadow: 0 4px 8px rgba(0, 102, 255, 0.2);
-        }
-        
-        /* Progress bar */
         .stProgress > div > div > div {
             background-color: #0066ff;
         }
         
-        /* Selectbox and input styling */
-        .stSelectbox, .stTextInput {
-            border-radius: 6px;
-        }
-        
-        /* Expander styling */
-        .streamlit-expanderHeader {
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            border: 1px solid rgba(0, 102, 255, 0.2);
-        }
-        
-        .streamlit-expanderContent {
-            border: 1px solid rgba(0, 102, 255, 0.2);
-            border-top: none;
-            border-radius: 0 0 6px 6px;
-        }
-        
-        /* Tab styling */
-        .stTabs [data-baseweb="tab-list"] {
-            gap: 2rem;
-            border-bottom: 1px solid #0066ff;
-        }
-        
-        .stTabs [data-baseweb="tab"] {
-            color: #0066ff;
-            border-radius: 4px 4px 0 0;
-        }
-        
-        .stTabs [aria-selected="true"] {
-            background-color: #0066ff !important;
-            color: white !important;
-        }
-        
-        /* Tooltip styling */
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            cursor: help;
-        }
-        
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            background-color: #0066ff;
-            color: white;
-            text-align: center;
-            padding: 5px;
-            border-radius: 6px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
         </style>
     """, unsafe_allow_html=True)
+
+def display_metric_group(category, metrics, phase, definitions, score_options):
+    """Helper function to display metric groups with consistent styling"""
+    st.markdown(f"### {category}")
+    
+    for metric in metrics:
+        key = f"{phase}_{category}_{metric}"
+        
+        col1, col2 = st.columns([3, 2])
+        with col1:
+            with st.expander(f"❓ {metric}", expanded=False):
+                st.write(definitions.get(metric, "No definition available"))
+        
+        with col2:
+            score = st.select_slider(
+                "Score",
+                options=list(score_options.keys()),
+                format_func=lambda x: score_options[x],
+                key=f"score_{key}"
+            )
+            if phase == 'pre':
+                st.session_state.pre_scores[key] = score
+            else:
+                st.session_state.post_scores[key] = score
+                
+        comment = st.text_input(
+            "Comments",
+            key=f"comment_{key}",
+            placeholder="Add comments...",
+            label_visibility="collapsed"
+        )
+        st.session_state.comments[key] = comment
+        st.markdown("---")
 
 def create_campaign_scorecard():
     st.set_page_config(
@@ -130,8 +82,6 @@ def create_campaign_scorecard():
     set_page_style()
     
     # Initialize session state
-    if 'active_tab' not in st.session_state:
-        st.session_state.active_tab = 0
     if 'pre_scores' not in st.session_state:
         st.session_state.pre_scores = {}
     if 'post_scores' not in st.session_state:
@@ -139,153 +89,152 @@ def create_campaign_scorecard():
     if 'comments' not in st.session_state:
         st.session_state.comments = {}
 
-    # App Header with Campaign Stats
+    # App Header
     st.title("📊 Campaign Performance Scorecard")
     
-    # Create main navigation tabs
+    # Campaign Information
+    col1, col2, col3 = st.columns([2,1,1])
+    with col1:
+        campaign_name = st.text_input(
+            "Campaign Name",
+            placeholder="Enter campaign name...",
+            help="Enter the name of your campaign"
+        )
+    with col2:
+        campaign_date = st.date_input(
+            "Start Date",
+            help="Select campaign start date"
+        )
+    with col3:
+        end_date = st.date_input(
+            "End Date",
+            help="Select campaign end date"
+        )
+
+    # Define metrics
+    pre_metrics = {
+        'Creative Readiness': [
+            'Assets received on time',
+            'Storyboard approvals met deadlines',
+            'Creative meets format & resolution'
+        ],
+        'Production Timeline': [
+            'Workback schedule followed',
+            'Vendor deadlines met',
+            'Final creative delivered on time'
+        ]
+    }
+
+    post_metrics = {
+        'Impressions & Reach': [
+            'Actual impressions vs target',
+            'Audience engagement rate',
+            'Share of voice achieved'
+        ],
+        'Engagement & Awareness': [
+            'Social media mentions increased',
+            'Hashtag usage met expectations',
+            'Earned media coverage'
+        ]
+    }
+
+    # Definitions for tooltips
+    metric_definitions = {
+        'Assets received on time': 'Measures if all creative assets were delivered by the scheduled date.',
+        'Storyboard approvals met deadlines': 'Checks if storyboard approvals were completed on time.',
+        'Creative meets format & resolution': 'Ensures creative assets meet required formats and resolution standards.',
+        'Workback schedule followed': 'Verifies if the production timeline was adhered to as planned.',
+        'Vendor deadlines met': 'Confirms if external vendors met their deadlines.',
+        'Final creative delivered on time': 'Ensures the final creative was delivered by the deadline.',
+    }
+
+    # Score options
+    score_options = {
+        0: "0 - No/Poor",
+        3: "3 - Partial/Medium",
+        5: "5 - Yes/Excellent"
+    }
+
+    # Create main tabs
     tabs = st.tabs([
-        "📋 Campaign Overview",
         "📈 Pre-Campaign Metrics",
         "🎯 Post-Campaign Metrics",
         "📊 Analytics Dashboard"
     ])
-    
-    # Campaign Overview Tab
+
+    # Pre-Campaign Tab
     with tabs[0]:
-        col1, col2, col3 = st.columns([2,1,1])
-        with col1:
-            campaign_name = st.text_input(
-                "Campaign Name",
-                placeholder="Enter campaign name...",
-                help="Enter the name of your campaign"
-            )
-        with col2:
-            campaign_date = st.date_input(
-                "Start Date",
-                help="Select campaign start date"
-            )
-        with col3:
-            end_date = st.date_input(
-                "End Date",
-                help="Select campaign end date"
-            )
-        
-        # Quick Stats Cards
-        st.markdown("### Campaign Quick Stats")
-        quick_stats_cols = st.columns(4)
-        with quick_stats_cols[0]:
-            st.markdown("""
-                <div class="metric-card">
-                    <h4>Pre-Campaign Score</h4>
-                    <h2 style="color: #0066ff;">85%</h2>
-                    <p>Campaign Readiness</p>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        # Add more quick stat cards...
-
-    # Pre-Campaign Metrics Tab
-    with tabs[1]:
         st.header("Pre-Campaign Scorecard")
-        
-        # Create category tabs for better organization
-        metric_tabs = st.tabs([
-            "Creative & Production",
-            "Media & Placement",
-            "Compliance & Approvals"
-        ])
-        
-        with metric_tabs[0]:
-            # Creative & Production metrics
-            for category in ['Creative Readiness', 'Production Timeline']:
-                with st.expander(f"📌 {category}", expanded=True):
-                    display_metric_group(category, pre_metrics[category], 'pre')
-        
-        # Similarly organize other metric tabs...
+        for category, metrics in pre_metrics.items():
+            with st.expander(f"📌 {category}", expanded=True):
+                display_metric_group(category, metrics, 'pre', metric_definitions, score_options)
 
-    # Post-Campaign Metrics Tab
-    with tabs[2]:
+    # Post-Campaign Tab
+    with tabs[1]:
         st.header("Post-Campaign Performance")
-        
-        # Create category tabs for better organization
-        post_metric_tabs = st.tabs([
-            "Reach & Engagement",
-            "Brand Impact",
-            "ROI & Conversions"
-        ])
-        
-        # Similar organization as pre-campaign...
+        for category, metrics in post_metrics.items():
+            with st.expander(f"📌 {category}", expanded=True):
+                display_metric_group(category, metrics, 'post', metric_definitions, score_options)
 
-    # Analytics Dashboard Tab
-    with tabs[3]:
+    # Analytics Tab
+    with tabs[2]:
         st.header("Campaign Analytics Dashboard")
         
-        # Filters and Controls
-        col1, col2 = st.columns([2,2])
+        # Calculate totals
+        pre_total = sum(st.session_state.pre_scores.values()) if st.session_state.pre_scores else 0
+        post_total = sum(st.session_state.post_scores.values()) if st.session_state.post_scores else 0
+        
+        pre_max = len([metric for metrics in pre_metrics.values() for metric in metrics]) * 5
+        post_max = len([metric for metrics in post_metrics.values() for metric in metrics]) * 5
+        
+        # Display summary metrics
+        col1, col2 = st.columns(2)
         with col1:
-            viz_type = st.radio(
-                "Select Visualization",
-                ["Performance Overview", "Category Comparison", "Trend Analysis"],
-                horizontal=True
+            pre_percentage = (pre_total / pre_max * 100) if pre_max > 0 else 0
+            st.metric("Pre-Campaign Score", f"{pre_percentage:.1f}%")
+            st.progress(pre_percentage / 100)
+            
+        with col2:
+            post_percentage = (post_total / post_max * 100) if post_max > 0 else 0
+            st.metric("Post-Campaign Score", f"{post_percentage:.1f}%")
+            st.progress(post_percentage / 100)
+
+        # Add visualization
+        if st.session_state.pre_scores or st.session_state.post_scores:
+            # Create DataFrames for visualization
+            def create_category_df(scores_dict, metrics_dict, phase):
+                data = []
+                for category, metrics in metrics_dict.items():
+                    category_scores = [scores_dict.get(f"{phase}_{category}_{metric}", 0) for metric in metrics]
+                    avg_score = np.mean(category_scores) if category_scores else 0
+                    data.append({
+                        'Category': category,
+                        'Average Score': avg_score,
+                        'Phase': 'Pre-Campaign' if phase == 'pre' else 'Post-Campaign'
+                    })
+                return pd.DataFrame(data)
+
+            pre_df = create_category_df(st.session_state.pre_scores, pre_metrics, 'pre')
+            post_df = create_category_df(st.session_state.post_scores, post_metrics, 'post')
+            combined_df = pd.concat([pre_df, post_df])
+
+            fig = px.bar(
+                combined_df,
+                x='Category',
+                y='Average Score',
+                color='Phase',
+                barmode='group',
+                title='Category Performance Comparison',
+                color_discrete_sequence=['#0066ff', '#66a3ff']
             )
-        
-        # Enhanced visualizations with consistent branding
-        if viz_type == "Performance Overview":
-            fig = create_performance_overview()
+            
+            fig.update_layout(
+                plot_bgcolor='white',
+                paper_bgcolor='white',
+                yaxis_range=[0, 5]
+            )
+            
             st.plotly_chart(fig, use_container_width=True)
-        
-        # Add more visualization options...
-
-def display_metric_group(category, metrics, phase):
-    """Helper function to display metric groups with consistent styling"""
-    for metric in metrics:
-        key = f"{phase}_{category}_{metric}"
-        
-        st.markdown(f"""
-            <div class="metric-card">
-                <h4>{metric}</h4>
-                {create_metric_content(key, metric)}
-            </div>
-        """, unsafe_allow_html=True)
-
-def create_performance_overview():
-    """Create a performance overview visualization with branded colors"""
-    fig = go.Figure()
-    
-    # Add traces with branded colors
-    fig.add_trace(go.Bar(
-        name="Pre-Campaign",
-        x=categories,
-        y=pre_scores,
-        marker_color="#0066ff"
-    ))
-    
-    fig.add_trace(go.Bar(
-        name="Post-Campaign",
-        x=categories,
-        y=post_scores,
-        marker_color="#66a3ff"
-    ))
-    
-    # Update layout with consistent branding
-    fig.update_layout(
-        title="Campaign Performance Overview",
-        plot_bgcolor="white",
-        paper_bgcolor="white",
-        font=dict(color="#333333"),
-        showlegend=True,
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
-            x=1
-        )
-    )
-    
-    return fig
-
-# Additional helper functions and main execution...
 
 if __name__ == "__main__":
     create_campaign_scorecard()
