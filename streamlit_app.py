@@ -21,7 +21,7 @@ st.markdown("""
         background-color: #f5f5f5;
     }
     .stHeader {
-        color: #333;
+        color: white; /* Changed to white for contrast with #0066ff */
         font-size: 24px;
         font-weight: bold;
         background-color: #0066ff;
@@ -43,7 +43,7 @@ st.markdown("""
     }
     .stButton {
         background-color: #0066ff;
-        color: white;
+        color: white; /* Changed to white for contrast with #0066ff */
         border-radius: 5px;
         padding: 10px 20px;
         border: none;
@@ -51,6 +51,7 @@ st.markdown("""
     }
     .stButton:hover {
         background-color: #0052cc;
+        color: white; /* Ensure text remains white on hover */
     }
     .stProgress {
         background-color: #e0e0e0;
@@ -300,6 +301,55 @@ def create_campaign_scorecard():
     pre_progress = pre_percentage / 100 if pre_max > 0 else 0
     post_progress = post_percentage / 100 if post_max > 0 else 0
 
+    # Get unique categories from both pre and post metrics
+    categories = list(set(list(pre_metrics.keys()) + list(post_metrics.keys())))
+
+    # Create DataFrames for visualization
+    def create_category_df(scores_dict, metrics_dict, phase):
+        data = []
+        for category, metrics in metrics_dict.items():
+            category_scores = [scores_dict.get(f"{phase}_{category}_{metric}", 0) for metric in metrics]
+            avg_score = np.mean(category_scores) if category_scores else 0
+            data.append({
+                'Category': category,
+                'Average Score': avg_score,
+                'Phase': 'Pre-Campaign' if phase == 'pre' else 'Post-Campaign'
+            })
+        return pd.DataFrame(data)
+
+    pre_df = create_category_df(st.session_state.pre_scores, pre_metrics, 'pre')
+    post_df = create_category_df(st.session_state.post_scores, post_metrics, 'post')
+    combined_df = pd.concat([pre_df, post_df]).dropna()
+
+    # Calculate improvements and declines (in percentages for consistency), only for categories with both pre and post data
+    improvements = []
+    declines = []
+    
+    common_categories = set(pre_df['Category']).intersection(set(post_df['Category']))
+    
+    for category in common_categories:
+        try:
+            pre_score = pre_df[pre_df['Category'] == category]['Average Score'].iloc[0] if not pre_df[pre_df['Category'] == category].empty else 0
+            post_score = post_df[post_df['Category'] == category]['Average Score'].iloc[0] if not post_df[post_df['Category'] == category].empty else 0
+            
+            # Convert to percentages for comparison (scale 0-5 to 0-100%)
+            pre_percent = (pre_score / 5) * 100 if pre_score > 0 else 0
+            post_percent = (post_score / 5) * 100 if post_score > 0 else 0
+            
+            # Avoid division by zero or unrealistic declines
+            if pre_percent == 0 and post_percent == 0:
+                continue  # Skip if both are 0 (no change)
+            elif pre_percent == 0 and post_percent > 0:
+                improvements.append((category, post_percent))  # Full improvement if pre was 0
+            else:
+                diff = post_percent - pre_percent
+                if diff > 0:
+                    improvements.append((category, diff))
+                elif diff < 0:
+                    declines.append((category, abs(diff)))
+        except (IndexError, KeyError):
+            continue  # Skip if data is not available for this category
+
     # Display totals and visualizations (in a box)
     with st.container():
         st.markdown('<div class="stContainer"><div class="stHeader">Score Summary and Visualizations</div>', unsafe_allow_html=True)
@@ -318,26 +368,6 @@ def create_campaign_scorecard():
                 st.metric("Post-Campaign Score", f"{post_percentage:.1f}%")
                 st.progress(post_progress)
                 st.markdown('</div>', unsafe_allow_html=True)
-
-        # Get unique categories from both pre and post metrics
-        categories = list(set(list(pre_metrics.keys()) + list(post_metrics.keys())))
-
-        # Create DataFrames for visualization
-        def create_category_df(scores_dict, metrics_dict, phase):
-            data = []
-            for category, metrics in metrics_dict.items():
-                category_scores = [scores_dict.get(f"{phase}_{category}_{metric}", 0) for metric in metrics]
-                avg_score = np.mean(category_scores) if category_scores else 0
-                data.append({
-                    'Category': category,
-                    'Average Score': avg_score,
-                    'Phase': 'Pre-Campaign' if phase == 'pre' else 'Post-Campaign'
-                })
-            return pd.DataFrame(data)
-
-        pre_df = create_category_df(st.session_state.pre_scores, pre_metrics, 'pre')
-        post_df = create_category_df(st.session_state.post_scores, post_metrics, 'post')
-        combined_df = pd.concat([pre_df, post_df]).dropna()
 
         # Visualization Section
         st.subheader("Data Visualizations")
