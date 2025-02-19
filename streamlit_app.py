@@ -275,7 +275,6 @@ def create_campaign_scorecard():
     with st.container():
         st.markdown('<div class="stContainer"><div class="stHeader">Campaign Information</div>', unsafe_allow_html=True)
         campaign_name = st.text_input("Campaign Name", key="campaign_name")
-        campaign_date = st.date_input("Campaign Date", key="campaign_date")
         start_date = st.date_input("Start Date", key="start_date")
         end_date = st.date_input("End Date", key="end_date")
         client_name = st.text_input("Client Name", key="client_name")
