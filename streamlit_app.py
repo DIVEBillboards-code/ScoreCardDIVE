@@ -743,8 +743,7 @@ def create_campaign_scorecard():
             # Add campaign info with new fields
             data.append(["Campaign Information", "", "", ""])
             data.append(["Campaign Name", campaign_name, "", ""])
-            data.append(["Campaign Date", campaign_date.strftime("%Y-%m-%d"), "", ""])
-            data.append(["Start Date", start_date.strftime("%Y-%m-%d"), "", ""])
+            data.append(["Start Date", start_date.strftime("%Y-%m-%d"), "", ""])  # Use start_date instead of campaign_date
             data.append(["End Date", end_date.strftime("%Y-%m-%d"), "", ""])
             data.append(["Client Name", client_name, "", ""])
             data.append(["Country", country, "", ""])
