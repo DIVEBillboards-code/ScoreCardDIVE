@@ -115,7 +115,7 @@ def create_campaign_scorecard():
                         key=f"score_{key}"
                     )
                     st.session_state.pre_scores[key] = score
-                comment = st.text_area("Comments", key=f"comment_{key}", height=50)
+                comment = st.text_area("Comments", key=f"comment_{key}", label_visibility="collapsed")
                 st.session_state.comments[key] = comment
                 st.markdown("---")
 
@@ -137,7 +137,7 @@ def create_campaign_scorecard():
                         key=f"score_{key}"
                     )
                     st.session_state.post_scores[key] = score
-                comment = st.text_area("Comments", key=f"comment_{key}", height=50)
+                comment = st.text_area("Comments", key=f"comment_{key}", label_visibility="collapsed")
                 st.session_state.comments[key] = comment
                 st.markdown("---")
 
