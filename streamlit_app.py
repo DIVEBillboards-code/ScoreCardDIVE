@@ -92,24 +92,31 @@ st.markdown("""
         border-radius: 4px;
     }
     
-    /* Improved expander styling with blue colors */
-    .streamlit-expanderHeader {
-        background-color: #f8f9fa;
+    /* Target Streamlit expander specifically */
+    .st-emotion-cache-1fttcpj {
+        color: #0066ff !important;
+    }
+    
+    /* Target the SVG icon (question mark) */
+    .st-emotion-cache-1pwu5cb {
+        color: #0066ff !important;
+        fill: #0066ff !important;
+    }
+    
+    /* Target expanded content */
+    .st-emotion-cache-1q1n0ol {
+        color: #0066ff !important;
+    }
+    
+    /* Additional styling for expander */
+    div[data-testid="stExpander"] {
         border-radius: 8px;
         padding: 10px 15px;
         font-weight: 500;
-        color: #0066ff !important;
     }
-    .streamlit-expanderHeader:hover {
+    
+    div[data-testid="stExpander"]:hover {
         background-color: #f0f2f5;
-    }
-    /* Style for the question mark and text */
-    .streamlit-expanderHeader svg {
-        fill: #0066ff !important;
-    }
-    /* Override Streamlit's default expander colors */
-    .streamlit-expanderContent {
-        color: #0066ff !important;
     }
     
     /* Enhanced input fields */
