@@ -6,165 +6,261 @@ import numpy as np
 from datetime import datetime
 from openpyxl.styles import Font, PatternFill
 
-# Set page config first
-st.set_page_config(
-    page_title="Campaign Scorecard",
-    layout="wide",
-    initial_sidebar_state="expanded"  # Show sidebar by default
-)
-
-# Enhanced CSS for better visual hierarchy and user experience
+# First, update the CSS for better UX
 st.markdown("""
     <style>
-    /* Base styles with improved readability */
+    /* Modern color palette */
+    :root {
+        --primary: #0066ff;
+        --primary-dark: #0052cc;
+        --primary-light: #e6f0ff;
+        --success: #28a745;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --gray-100: #f8f9fa;
+        --gray-200: #e9ecef;
+        --gray-300: #dee2e6;
+    }
+
+    /* Base styles */
     * {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
     
-    /* Improved container styling */
+    /* Card container improvements */
     .stContainer {
-        border: 1px solid #e0e0e0;
-        border-radius: 12px;
-        padding: 24px;
-        margin-bottom: 24px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--gray-300);
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 28px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         background-color: white;
         transition: all 0.3s ease;
     }
     .stContainer:hover {
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* Enhanced header styling */
-    .stHeader {
-        color: white;
-        font-size: 1.5rem;
-        font-weight: 600;
-        background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
-        padding: 16px;
-        border-radius: 8px;
-        text-align: center;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 4px rgba(0, 102, 255, 0.2);
-    }
-    
-    /* Improved subheader styling */
-    .stSubheader {
-        color: #1a1a1a;
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin: 16px 0;
-        padding-bottom: 8px;
-        border-bottom: 2px solid #0066ff;
-    }
-    
-    /* Enhanced metric container */
-    .stMetric {
-        background-color: white;
-        padding: 20px;
-        border-radius: 8px;
-        border: 1px solid #e0e0e0;
-        transition: transform 0.2s ease;
-    }
-    .stMetric:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
         transform: translateY(-2px);
     }
     
-    /* Improved button styling */
-    .stButton > button {
-        background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+    /* Enhanced header with gradient */
+    .stHeader {
         color: white;
-        border-radius: 8px;
-        padding: 12px 24px;
+        font-size: 1.6rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(0, 102, 255, 0.15);
+    }
+    
+    /* Improved subheader */
+    .stSubheader {
+        color: var(--primary-dark);
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin: 24px 0 16px;
+        padding-bottom: 12px;
+        border-bottom: 3px solid var(--primary);
+        transition: color 0.2s ease;
+    }
+    .stSubheader:hover {
+        color: var(--primary);
+    }
+    
+    /* Enhanced metric tiles */
+    .stMetric {
+        background: linear-gradient(135deg, white, var(--gray-100));
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid var(--gray-300);
+        transition: all 0.3s ease;
+        margin-bottom: 16px;
+    }
+    .stMetric:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Modern button styling */
+    .stButton > button {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 16px 32px;
         border: none;
         font-weight: 600;
+        letter-spacing: 0.5px;
         transition: all 0.3s ease;
         width: 100%;
+        text-transform: uppercase;
+        font-size: 14px;
     }
     .stButton > button:hover {
-        background: linear-gradient(135deg, #0052cc 0%, #003d99 100%);
-        box-shadow: 0 4px 8px rgba(0, 102, 255, 0.2);
+        background: linear-gradient(135deg, var(--primary-dark) 0%, #004399 100%);
+        box-shadow: 0 6px 12px rgba(0, 102, 255, 0.2);
+        transform: translateY(-2px);
     }
     
-    /* Enhanced progress bar */
+    /* Enhanced progress bars */
     .stProgress > div > div {
-        background-color: #0066ff;
-        border-radius: 4px;
-    }
-    
-    /* Target Streamlit expander specifically */
-    .st-emotion-cache-1fttcpj {
-        color: #0066ff !important;
-    }
-    
-    /* Target the SVG icon (question mark) */
-    .st-emotion-cache-1pwu5cb {
-        color: #0066ff !important;
-        fill: #0066ff !important;
-    }
-    
-    /* Target expanded content */
-    .st-emotion-cache-1q1n0ol {
-        color: #0066ff !important;
-    }
-    
-    /* Additional styling for expander */
-    div[data-testid="stExpander"] {
+        background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
         border-radius: 8px;
-        padding: 10px 15px;
+        height: 8px !important;
+        transition: width 1s ease-in-out;
+    }
+    .stProgress {
+        height: 8px !important;
+    }
+    
+    /* Improved input styling */
+    .stTextInput > div > div > input,
+    .stSelectbox > div > div > select,
+    .stTextArea > div > div > textarea {
+        border-radius: 12px;
+        border: 2px solid var(--gray-300);
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+        background-color: var(--gray-100);
+    }
+    .stTextInput > div > div > input:focus,
+    .stSelectbox > div > div > select:focus,
+    .stTextArea > div > div > textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        background-color: white;
+    }
+    
+    /* Enhanced expander styling */
+    .st-emotion-cache-1fttcpj {
+        color: var(--primary) !important;
         font-weight: 500;
     }
-    
-    div[data-testid="stExpander"]:hover {
-        background-color: #f0f2f5;
+    .st-emotion-cache-1pwu5cb {
+        color: var(--primary) !important;
+        fill: var(--primary) !important;
     }
-    
-    /* Enhanced input fields */
-    .stTextInput > div > div > input {
+    .st-emotion-cache-1q1n0ol {
+        color: var(--primary-dark) !important;
+        background-color: var(--primary-light);
+        padding: 16px;
         border-radius: 8px;
-        border: 1px solid #e0e0e0;
-        padding: 8px 12px;
-        transition: all 0.3s ease;
-    }
-    .stTextInput > div > div > input:focus {
-        border-color: #0066ff;
-        box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.1);
+        margin-top: 8px;
     }
     
-    /* Improved selectbox styling */
-    .stSelectbox > div > div > select {
+    /* Score indicators */
+    .score-indicator {
+        padding: 8px 16px;
         border-radius: 8px;
-        border: 1px solid #e0e0e0;
-        padding: 8px 12px;
+        font-weight: 600;
+        text-align: center;
+        margin-top: 8px;
+    }
+    .score-high {
+        background-color: #e6ffe6;
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+    .score-medium {
+        background-color: #fff9e6;
+        color: var(--warning);
+        border: 1px solid var(--warning);
+    }
+    .score-low {
+        background-color: #ffe6e6;
+        color: var(--danger);
+        border: 1px solid var(--danger);
     }
     
-    /* Enhanced text area */
-    .stTextArea > div > div > textarea {
-        border-radius: 8px;
-        border: 1px solid #e0e0e0;
-        padding: 8px 12px;
-        min-height: 100px;
-    }
-    
-    /* Improved tooltip */
-    .stTooltipIcon {
-        color: #0066ff;
-    }
-    
-    /* Enhanced divider */
+    /* Improved dividers */
     hr {
+        height: 2px;
+        background: linear-gradient(to right, 
+            transparent, 
+            var(--gray-300), 
+            transparent
+        );
         border: none;
-        height: 1px;
-        background: linear-gradient(to right, transparent, #e0e0e0, transparent);
-        margin: 20px 0;
+        margin: 24px 0;
     }
     
-    /* Loading animation */
+    /* Loading states */
     .stSpinner > div {
-        border-color: #0066ff;
+        border-color: var(--primary);
+        border-top-color: transparent;
+    }
+    
+    /* Tooltip improvements */
+    .stTooltipIcon {
+        color: var(--primary) !important;
+        transition: transform 0.2s ease;
+    }
+    .stTooltipIcon:hover {
+        transform: scale(1.1);
+    }
+    
+    /* Chart customization */
+    .js-plotly-plot .plotly .modebar {
+        background: white !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+    
+    /* Improved table styling */
+    table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    th, td {
+        padding: 16px;
+        background: white;
+        border-bottom: 1px solid var(--gray-300);
+    }
+    th {
+        background: var(--gray-100);
+        font-weight: 600;
+        color: var(--primary-dark);
+    }
+    tr:last-child td {
+        border-bottom: none;
+    }
+    
+    /* Animation for content loading */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .stContainer {
+        animation: fadeIn 0.5s ease-out;
     }
     </style>
 """, unsafe_allow_html=True)
+
+# Update the visualization settings for better visual appeal
+def update_plot_theme(fig):
+    fig.update_layout(
+        font_family="Inter, -apple-system, BlinkMacSystemFont, sans-serif",
+        title_font_size=20,
+        title_font_family="Inter, -apple-system, BlinkMacSystemFont, sans-serif",
+        title_font_color="#0066ff",
+        plot_bgcolor="rgba(248, 249, 250, 0.5)",
+        paper_bgcolor="rgba(248, 249, 250, 0)",
+        hovermode="closest",
+        showlegend=True,
+        legend=dict(
+            bgcolor="rgba(255, 255, 255, 0.8)",
+            bordercolor="rgba(0, 0, 0, 0.1)",
+            borderwidth=1,
+            font=dict(size=12, color="#333333")
+        ),
+        margin=dict(t=50, b=50, l=50, r=50)
+    )
+    return fig
 
 def create_campaign_scorecard():
     # No need to call set_page_config here again, it's already at the top
