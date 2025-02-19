@@ -159,6 +159,9 @@ def create_campaign_scorecard():
         st.metric("Post-Campaign Total", f"{post_total}/{post_max}")
         st.progress(post_total/post_max)
 
+    # Get unique categories from both pre and post metrics
+    categories = list(set(list(pre_metrics.keys()) + list(post_metrics.keys())))
+
     # Create DataFrames for visualization
     def create_category_df(scores_dict, metrics_dict, phase):
         data = []
