@@ -92,7 +92,7 @@ def create_campaign_scorecard():
         cities = st.text_input("Cities", key="cities", help="Enter cities separated by commas")
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Define pre_metrics_base
+    # Define pre_metrics_base with corrected typo
     pre_metrics_base = {
         'Creative Readiness': [
             'Assets received on time',
@@ -108,7 +108,7 @@ def create_campaign_scorecard():
             'Billboard locations confirmed'
         ],
         'Approval & Compliance': [
-            'Vendor tests & pre-launch_checks done'
+            'Vendor tests & pre-launch checks done'  # Fixed: Removed underscore
         ],
         'Strategy': [
             'QR Code Added',
