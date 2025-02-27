@@ -297,7 +297,7 @@ def create_campaign_scorecard():
         'Final creative delivered on time': 'Ensures the final creative was delivered by the deadline.',
         'Billboard locations confirmed': 'Verifies that billboard placements were secured and confirmed.',
         'Vendor tests & pre-launch checks done': 'Confirms all pre-launch tests and checks by vendors were completed.',
-        'Client Approvals Responsiveness': 'Evaluates client responsiveness during approval processes.',  # Moved to all campaigns
+        'Client Approvals Responsiveness': 'Evaluates client responsiveness during approval processes.',
         # Strategy Category (All Campaigns)
         'QR Code Added': 'Checks if a QR code was included in the campaign materials.',
         'Clear CTA': 'Ensures the campaign includes a clear Call-to-Action.',
@@ -378,7 +378,7 @@ def create_campaign_scorecard():
             ],
             'Approval & Compliance': [
                 'Vendor tests & pre-launch checks done',
-                'Client Approvals Responsiveness'  # Moved here for all campaigns
+                'Client Approvals Responsiveness'
             ],
             'Strategy': [
                 'QR Code Added',
@@ -423,14 +423,18 @@ def create_campaign_scorecard():
         )
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Filter pre_metrics based on campaign type and user selection
+    # Filter pre_metrics and post_metrics based on user selection
     pre_metrics = {}
     for category, metrics in pre_metrics_base.items():
         if category in selected_pre_categories and (campaign_type != "TikTok Campaign" or category != 'TikTok Specific' or 'TikTok Specific' in selected_pre_categories):
             pre_metrics[category] = metrics
-
-    # Filter post_metrics based on user selection
     post_metrics = {cat: post_metrics_base[cat] for cat in selected_post_categories if cat in post_metrics_base}
+
+    # Clean up session state to only include current metrics
+    valid_pre_keys = {f"pre_{cat}_{metric}" for cat, metrics in pre_metrics.items() for metric in metrics}
+    valid_post_keys = {f"post_{cat}_{metric}" for cat, metrics in post_metrics.items() for metric in metrics}
+    st.session_state.pre_scores = {k: v for k, v in st.session_state.pre_scores.items() if k in valid_pre_keys}
+    st.session_state.post_scores = {k: v for k, v in st.session_state.post_scores.items() if k in valid_post_keys}
 
     # Pre-Campaign Section
     with st.container():
