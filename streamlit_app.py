@@ -13,7 +13,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Update the visualization settings for better visual appeal (unchanged)
+# Update the visualization settings (unchanged)
 def update_plot_theme(fig):
     fig.update_layout(
         font_family="Inter, -apple-system, BlinkMacSystemFont, sans-serif",
@@ -35,7 +35,7 @@ def update_plot_theme(fig):
     return fig
 
 def create_campaign_scorecard():
-    # Initialize session state for storing scores (unchanged)
+    # Initialize session state
     if 'pre_scores' not in st.session_state:
         st.session_state.pre_scores = {}
     if 'post_scores' not in st.session_state:
@@ -43,7 +43,7 @@ def create_campaign_scorecard():
     if 'comments' not in st.session_state:
         st.session_state.comments = {}
 
-    # Define metric_definitions with specified metrics removed
+    # Define metric_definitions
     metric_definitions = {
         'Assets received on time': 'Measures if all creative assets were delivered by the scheduled date.',
         'Storyboard approvals met deadlines': 'Checks if storyboard approvals were completed on time.',
@@ -51,8 +51,8 @@ def create_campaign_scorecard():
         'Workback schedule followed': 'Verifies if the production timeline was adhered to as planned.',
         'Vendor deadlines met': 'Confirms if external vendors met their deadlines.',
         'Final creative delivered on time': 'Ensures the final creative was delivered by the deadline.',
-        'Billboard locations confirmed': 'Verifies that billboard placements were secured and confirmed.',
-        'Placement visibility': 'Evaluates the visibility and effectiveness of ad placements.',
+        'Billboard locations confirmed': 'Verifies that billboard placements were secured and confirmed.',  # DIVE-specific
+        'Placement visibility': 'Evaluates the visibility and effectiveness of ad placements.',  # DIVE-specific
         'Vendor tests & pre-launch checks done': 'Confirms all pre-launch tests and checks by vendors were completed.',
         'Pre-Defined Moderation Guidelines': 'Refers to established rules for content moderation before launch.',
         'Approval Checklist': 'Lists required approvals for moderation processes.',
@@ -66,11 +66,11 @@ def create_campaign_scorecard():
         'Client Content Approval': 'Confirms client content has been approved.',
         'Creator Content Submission': 'Logs when creators submit their content.',
         'Creator Content Approval': 'Verifies approval of content from creators.',
-        'TikTok Platform Compliance': 'Ensures content meets TikTok’s platform-specific rules.',
-        'TikTok Ad Moderation Passed': 'Confirms TikTok ads passed moderation checks.',
-        'QR Code Added': 'Checks if a QR code was included in the campaign materials for tracking or engagement.',
-        'Clear CTA': 'Ensures the campaign includes a clear and actionable Call-to-Action.',
-        'Brand Mission': 'Verifies that the campaign aligns with and conveys the brand’s mission statement.',
+        'TikTok Platform Compliance': 'Ensures content meets TikTok’s platform-specific rules.',  # TikTok-specific
+        'TikTok Ad Moderation Passed': 'Confirms TikTok ads passed moderation checks.',  # TikTok-specific
+        'QR Code Added': 'Checks if a QR code was included in the campaign materials.',
+        'Clear CTA': 'Ensures the campaign includes a clear Call-to-Action.',
+        'Brand Mission': 'Verifies that the campaign aligns with the brand’s mission statement.',
         'Hashtag': 'Confirms a campaign-specific hashtag was created and implemented.',
         'Actual impressions vs target': 'Compares actual ad impressions to the set target.',
         'Audience engagement rate': 'Measures how audiences interacted with the campaign.',
@@ -98,9 +98,10 @@ def create_campaign_scorecard():
         5: "5 - Yes/Excellent"
     }
 
-    # Campaign Information (unchanged)
+    # Campaign Information with Campaign Type Selector
     with st.container():
         st.markdown('<div class="stContainer"><div class="stHeader">Campaign Information</div>', unsafe_allow_html=True)
+        campaign_type = st.selectbox("Campaign Type", ["TikTok Campaign", "DIVE Campaign"], key="campaign_type")
         campaign_name = st.text_input("Campaign Name", key="campaign_name")
         start_date = st.date_input("Start Date", key="start_date")
         end_date = st.date_input("End Date", key="end_date")
@@ -109,121 +110,136 @@ def create_campaign_scorecard():
         cities = st.text_input("Cities", key="cities", help="Enter cities separated by commas")
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Pre-Campaign Section with updated pre_metrics
+    # Define pre_metrics with conditional filtering
+    pre_metrics_base = {
+        'Creative Readiness': [
+            'Assets received on time',
+            'Storyboard approvals met deadlines',
+            'Creative meets format & resolution'
+        ],
+        'Production Timeline': [
+            'Workback schedule followed',
+            'Vendor deadlines met',
+            'Final creative delivered on time'
+        ],
+        'Placement & Inventory': [
+            'Billboard locations confirmed',  # DIVE-specific
+            'Placement visibility'  # DIVE-specific
+        ],
+        'Approval & Compliance': [
+            'Vendor tests & pre-launch checks done'
+        ],
+        'Moderation Guidelines': [
+            'Pre-Defined Moderation Guidelines',
+            'Approval Checklist'
+        ],
+        'Moderation Script': [
+            'Pre-Moderation Review Process',
+            'Compliance Script Execution'
+        ],
+        'Moderation Workback Schedule': [
+            'Content Submission Date',
+            'Moderation Review Deadline'
+        ],
+        'Influencer Assets': [
+            'Influencer Content Submission',
+            'Influencer Content Approval'
+        ],
+        'Clients Approvals': [
+            'Client Content Submission',
+            'Client Content Approval'
+        ],
+        'Creators Approvals': [
+            'Creator Content Submission',
+            'Creator Content Approval'
+        ],
+        'TikTok Approvals': [
+            'TikTok Platform Compliance',  # TikTok-specific
+            'TikTok Ad Moderation Passed'  # TikTok-specific
+        ],
+        'Brand Strategy': [
+            'QR Code Added',
+            'Clear CTA',
+            'Brand Mission',
+            'Hashtag'
+        ]
+    }
+
+    # Filter pre_metrics based on campaign type
+    pre_metrics = {}
+    for category, metrics in pre_metrics_base.items():
+        filtered_metrics = []
+        for metric in metrics:
+            if campaign_type == "TikTok Campaign" and metric in ['Billboard locations confirmed', 'Placement visibility']:
+                continue  # Skip DIVE-specific metrics
+            elif campaign_type == "DIVE Campaign" and metric in ['TikTok Platform Compliance', 'TikTok Ad Moderation Passed']:
+                continue  # Skip TikTok-specific metrics
+            else:
+                filtered_metrics.append(metric)
+        if filtered_metrics:  # Only add non-empty categories
+            pre_metrics[category] = filtered_metrics
+
+    # Pre-Campaign Section
     with st.container():
         st.markdown('<div class="stContainer"><div class="stHeader">Pre-Campaign Scorecard</div>', unsafe_allow_html=True)
-        pre_metrics = {
-            'Creative Readiness': [
-                'Assets received on time',
-                'Storyboard approvals met deadlines',
-                'Creative meets format & resolution'
-            ],
-            'Production Timeline': [
-                'Workback schedule followed',
-                'Vendor deadlines met',
-                'Final creative delivered on time'
-            ],
-            'Placement & Inventory': [
-                'Billboard locations confirmed',
-                'Placement visibility'
-            ],
-            'Budget & Media': [],
-            'Target Audience': [],
-            'Approval & Compliance': [
-                'Vendor tests & pre-launch checks done'
-            ],
-            'Moderation Guidelines': [
-                'Pre-Defined Moderation Guidelines',
-                'Approval Checklist'
-            ],
-            'Moderation Script': [
-                'Pre-Moderation Review Process',
-                'Compliance Script Execution'
-            ],
-            'Moderation Workback Schedule': [
-                'Content Submission Date',
-                'Moderation Review Deadline'
-            ],
-            'Influencer Assets': [
-                'Influencer Content Submission',
-                'Influencer Content Approval'
-            ],
-            'Clients Approvals': [
-                'Client Content Submission',
-                'Client Content Approval'
-            ],
-            'Creators Approvals': [
-                'Creator Content Submission',
-                'Creator Content Approval'
-            ],
-            'TikTok Approvals': [
-                'TikTok Platform Compliance',
-                'TikTok Ad Moderation Passed'
-            ],
-            'Brand Strategy': [
-                'QR Code Added',
-                'Clear CTA',
-                'Brand Mission',
-                'Hashtag'
-            ]
-        }
         for category, metrics in pre_metrics.items():
-            if metrics:  # Only display categories with metrics
-                st.markdown(f'<div class="stSubheader">{category}</div>', unsafe_allow_html=True)
-                for metric in metrics:
-                    key = f"pre_{category}_{metric}"
-                    col1, col2 = st.columns([3, 2])
-                    with col1:
-                        with st.expander(f"❓ {metric}", expanded=False):
-                            st.write(metric_definitions[metric])
-                    with col2:
-                        score = st.selectbox(
-                            "Score",
-                            options=list(score_options.keys()),
-                            format_func=lambda x: score_options[x],
-                            key=f"score_{key}"
-                        )
-                        st.session_state.pre_scores[key] = score
-                    comment = st.text_area("Comments", key=f"comment_{key}", label_visibility="collapsed")
-                    st.session_state.comments[key] = comment
-                    st.markdown('<hr style="border: 1px solid #e0e0e0; margin: 10px 0;">', unsafe_allow_html=True)
+            st.markdown(f'<div class="stSubheader">{category}</div>', unsafe_allow_html=True)
+            for metric in metrics:
+                key = f"pre_{category}_{metric}"
+                col1, col2 = st.columns([3, 2])
+                with col1:
+                    with st.expander(f"❓ {metric}", expanded=False):
+                        st.write(metric_definitions[metric])
+                with col2:
+                    score = st.selectbox(
+                        "Score",
+                        options=list(score_options.keys()),
+                        format_func=lambda x: score_options[x],
+                        key=f"score_{key}"
+                    )
+                    st.session_state.pre_scores[key] = score
+                comment = st.text_area("Comments", key=f"comment_{key}", label_visibility="collapsed")
+                st.session_state.comments[key] = comment
+                st.markdown('<hr style="border: 1px solid #e0e0e0; margin: 10px 0;">', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Post-Campaign Section (unchanged)
+    # Define post_metrics with no campaign-specific filtering (assuming post-campaign metrics are universal)
+    post_metrics = {
+        'Impressions & Reach': [
+            'Actual impressions vs target',
+            'Audience engagement rate',
+            'Share of voice achieved'
+        ],
+        'Engagement & Awareness': [
+            'Social media mentions increased',
+            'Hashtag usage met expectations',
+            'Earned media coverage'
+        ],
+        'Brand Sentiment': [
+            'Positive sentiment shift',
+            'UGC growth',
+            'Influencer engagement'
+        ],
+        'Conversion & ROI': [
+            'Website traffic increased',
+            'Sales lift / conversion growth',
+            'Cost per engagement met target'
+        ],
+        'Photography & Visibility': [
+            'High-quality images captured',
+            'Splash video created',
+            'Social media features'
+        ],
+        'Campaign Learnings': [
+            'Key wins identified',
+            'Areas for improvement noted',
+            'Optimization recommendations made'
+        ]
+    }
+
+    # Post-Campaign Section
     with st.container():
         st.markdown('<div class="stContainer-post"><div class="stHeader">Post-Campaign Scorecard</div>', unsafe_allow_html=True)
-        post_metrics = {
-            'Impressions & Reach': [
-                'Actual impressions vs target',
-                'Audience engagement rate',
-                'Share of voice achieved'
-            ],
-            'Engagement & Awareness': [
-                'Social media mentions increased',
-                'Hashtag usage met expectations',
-                'Earned media coverage'
-            ],
-            'Brand Sentiment': [
-                'Positive sentiment shift',
-                'UGC growth',
-                'Influencer engagement'
-            ],
-            'Conversion & ROI': [
-                'Website traffic increased',
-                'Sales lift / conversion growth',
-                'Cost per engagement met target'
-            ],
-            'Photography & Visibility': [
-                'High-quality images captured',
-                'Splash video created',
-                'Social media features'
-            ],
-            'Campaign Learnings': [
-                'Key wins identified',
-                'Areas for improvement noted',
-                'Optimization recommendations made'
-            ]
-        }
         for category, metrics in post_metrics.items():
             st.markdown(f'<div class="stSubheader">{category}</div>', unsafe_allow_html=True)
             for metric in metrics:
@@ -245,42 +261,38 @@ def create_campaign_scorecard():
                 st.markdown('<hr style="border: 1px solid #e0e0e0; margin: 10px 0;">', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Calculate totals as percentages (unchanged logic, adjusted for fewer metrics)
+    # Calculate totals as percentages
     pre_total = sum(st.session_state.pre_scores.values()) if st.session_state.pre_scores else 0
     post_total = sum(st.session_state.post_scores.values()) if st.session_state.post_scores else 0
     pre_max = len([metric for metrics in pre_metrics.values() for metric in metrics]) * 5
     post_max = len([metric for metrics in post_metrics.values() for metric in metrics]) * 5
 
-    # Convert to percentages (0 to 100)
     pre_percentage = (pre_total / pre_max * 100) if pre_max > 0 else 0
     post_percentage = (post_total / post_max * 100) if post_max > 0 else 0
-
-    # Normalize for progress bar (0 to 1)
     pre_progress = pre_percentage / 100 if pre_max > 0 else 0
     post_progress = post_percentage / 100 if post_max > 0 else 0
 
-    # Get unique categories from both pre and post metrics
-    categories = list(set([k for k, v in pre_metrics.items() if v] + list(post_metrics.keys())))
+    # Get unique categories
+    categories = list(set(list(pre_metrics.keys()) + list(post_metrics.keys())))
 
-    # Create DataFrames for visualization (unchanged logic)
+    # Create DataFrames for visualization
     def create_category_df(scores_dict, metrics_dict, phase):
         data = []
         for category, metrics in metrics_dict.items():
-            if metrics:  # Only process non-empty categories
-                category_scores = [scores_dict.get(f"{phase}_{category}_{metric}", 0) for metric in metrics]
-                avg_score = np.mean(category_scores) if category_scores else 0
-                data.append({
-                    'Category': category,
-                    'Average Score': avg_score,
-                    'Phase': 'Pre-Campaign' if phase == 'pre' else 'Post-Campaign'
-                })
+            category_scores = [scores_dict.get(f"{phase}_{category}_{metric}", 0) for metric in metrics]
+            avg_score = np.mean(category_scores) if category_scores else 0
+            data.append({
+                'Category': category,
+                'Average Score': avg_score,
+                'Phase': 'Pre-Campaign' if phase == 'pre' else 'Post-Campaign'
+            })
         return pd.DataFrame(data)
 
     pre_df = create_category_df(st.session_state.pre_scores, pre_metrics, 'pre')
     post_df = create_category_df(st.session_state.post_scores, post_metrics, 'post')
     combined_df = pd.concat([pre_df, post_df]).dropna()
 
-    # Calculate improvements and declines (unchanged logic)
+    # Calculate improvements and declines
     improvements = []
     declines = []
     common_categories = set(pre_df['Category']).intersection(set(post_df['Category']))
@@ -304,11 +316,10 @@ def create_campaign_scorecard():
         except (IndexError, KeyError):
             continue
 
-    # Display totals and visualizations (unchanged)
+    # Display totals and visualizations
     with st.container():
         st.markdown('<div class="stContainer"><div class="stHeader">Score Summary and Visualizations</div>', unsafe_allow_html=True)
         
-        # Summary metrics as percentages
         col1, col2 = st.columns(2)
         with col1:
             with st.container():
@@ -323,9 +334,7 @@ def create_campaign_scorecard():
                 st.progress(post_progress)
                 st.markdown('</div>', unsafe_allow_html=True)
 
-        # Visualization Section
         st.subheader("Data Visualizations")
-        
         viz_type = st.selectbox(
             "Select Visualization Type",
             ["Category Performance", "Radar Chart", "Score Distribution", "Phase Comparison"],
@@ -346,7 +355,7 @@ def create_campaign_scorecard():
             st.plotly_chart(fig, use_container_width=True)
 
         elif viz_type == "Radar Chart" and not pre_df.empty and not post_df.empty:
-            categories = list(k for k, v in pre_metrics.items() if v)  # Only non-empty categories
+            categories = list(pre_metrics.keys())
             pre_scores = pre_df['Average Score'].tolist()
             post_scores = post_df['Average Score'].tolist()
             fig = go.Figure()
@@ -420,7 +429,6 @@ def create_campaign_scorecard():
             )
             st.plotly_chart(fig, use_container_width=True)
 
-        # Add insights based on the data
         with st.container():
             st.markdown('<div class="stContainer"><div class="stHeader">Key Insights</div>', unsafe_allow_html=True)
             col1, col2 = st.columns(2)
@@ -444,12 +452,13 @@ def create_campaign_scorecard():
 
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Create Excel download (unchanged logic, adjusted for fewer metrics)
+    # Create Excel download
     with st.container():
         st.markdown('<div class="stContainer">', unsafe_allow_html=True)
         if st.button("Generate Report", key="generate_report", help="Download the scorecard as an Excel file"):
             data = []
             data.append(["Campaign Information", "", "", ""])
+            data.append(["Campaign Type", campaign_type, "", ""])
             data.append(["Campaign Name", campaign_name, "", ""])
             data.append(["Start Date", start_date.strftime("%Y-%m-%d"), "", ""])
             data.append(["End Date", end_date.strftime("%Y-%m-%d"), "", ""])
@@ -460,15 +469,14 @@ def create_campaign_scorecard():
             data.append(["Pre-Campaign Scorecard", "", "", ""])
             data.append(["Category", "Metric", "Score", "Comments"])
             for category, metrics in pre_metrics.items():
-                if metrics:  # Only include non-empty categories
-                    for metric in metrics:
-                        key = f"pre_{category}_{metric}"
-                        data.append([
-                            category,
-                            metric,
-                            st.session_state.pre_scores.get(key, 0),
-                            st.session_state.comments.get(key, "")
-                        ])
+                for metric in metrics:
+                    key = f"pre_{category}_{metric}"
+                    data.append([
+                        category,
+                        metric,
+                        st.session_state.pre_scores.get(key, 0),
+                        st.session_state.comments.get(key, "")
+                    ])
             data.append(["", "", "", ""])
             data.append(["Post-Campaign Scorecard", "", "", ""])
             data.append(["Category", "Metric", "Score", "Comments"])
@@ -487,7 +495,7 @@ def create_campaign_scorecard():
             data.append(["Post-Campaign Score", f"{post_percentage:.1f}%", "", ""])
             
             df = pd.DataFrame(data)
-            excel_file = f"campaign_scorecard_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+            excel_file = f"{campaign_type.lower().replace(' ', '_')}_scorecard_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
             with pd.ExcelWriter(excel_file, engine='openpyxl') as writer:
                 df.to_excel(writer, index=False, header=False)
                 workbook = writer.book
