@@ -43,7 +43,7 @@ def create_campaign_scorecard():
     if 'comments' not in st.session_state:
         st.session_state.comments = {}
 
-    # Define metric_definitions with updated metrics
+    # Define metric_definitions
     metric_definitions = {
         # Common Pre-Campaign Metrics (All Campaigns)
         'Assets received on time': 'Measures if all creative assets were delivered by the scheduled date.',
@@ -74,13 +74,40 @@ def create_campaign_scorecard():
         'Areas for improvement noted': 'Identifies aspects needing enhancement.',
     }
 
+    # Define recommendations for automated insights
+    recommendations = {
+        'Assets received on time': 'Set earlier internal deadlines or improve coordination with asset providers.',
+        'Storyboard approvals met deadlines': 'Streamline the approval process with clearer timelines.',
+        'Creative meets format & resolution': 'Review asset specifications with the creative team before submission.',
+        'Workback schedule followed': 'Enhance timeline visibility with project management tools.',
+        'Vendor deadlines met': 'Increase vendor oversight or negotiate stricter deadlines.',
+        'Final creative delivered on time': 'Implement buffer periods or escalate delays earlier.',
+        'Billboard locations confirmed': 'Confirm locations earlier in the planning phase.',
+        'Vendor tests & pre-launch checks done': 'Schedule pre-launch checks earlier to catch issues.',
+        'QR Code Added': 'Ensure QR code inclusion is part of the initial creative brief.',
+        'Clear CTA': 'Test CTAs with a focus group to ensure clarity.',
+        'Hashtag': 'Promote hashtag usage earlier in the campaign.',
+        'TikTok Platform Compliance': 'Train team on TikTok guidelines or consult platform experts.',
+        'TikTok Ad Moderation Passed': 'Submit ads earlier to allow time for revisions.',
+        'TikTok Branded Mission': 'Align mission with TikTok trends for better traction.',
+        'TikTok Branded Effects': 'Test effects with a small audience before full rollout.',
+        'Creators Approval / responsiveness': 'Set clear response deadlines for creators.',
+        'Client Approvals Responsiveness': 'Schedule regular check-ins to expedite client feedback.',
+        'Creators UGC Approvals': 'Simplify UGC approval process with predefined criteria.',
+        'High-quality images captured': 'Invest in better equipment or training for photography team.',
+        'Splash video created': 'Plan video production earlier to ensure quality.',
+        'Social media features': 'Experiment with additional features like polls or live streams.',
+        'Key wins identified': 'Document wins in real-time during the campaign.',
+        'Areas for improvement noted': 'Conduct a post-mortem meeting to identify gaps.'
+    }
+
     score_options = {
         0: "0 - No/Poor",
         3: "3 - Partial/Medium",
         5: "5 - Yes/Excellent"
     }
 
-    # Campaign Information
+    # Campaign Information with Category Filter
     with st.container():
         st.markdown('<div class="stContainer"><div class="stHeader">Campaign Information</div>', unsafe_allow_html=True)
         campaign_type = st.selectbox("Campaign Type", ["TikTok Campaign", "DIVE Campaign", "BYOB"], key="campaign_type")
@@ -90,52 +117,77 @@ def create_campaign_scorecard():
         client_name = st.text_input("Client Name", key="client_name")
         country = st.text_input("Country", key="country")
         cities = st.text_input("Cities", key="cities", help="Enter cities separated by commas")
+        
+        # Define base metrics for filtering
+        pre_metrics_base = {
+            'Creative Readiness': [
+                'Assets received on time',
+                'Storyboard approvals met deadlines',
+                'Creative meets format & resolution'
+            ],
+            'Production Timeline': [
+                'Workback schedule followed',
+                'Vendor deadlines met',
+                'Final creative delivered on time'
+            ],
+            'Placement & Inventory': [
+                'Billboard locations confirmed'
+            ],
+            'Approval & Compliance': [
+                'Vendor tests & pre-launch checks done'
+            ],
+            'Strategy': [
+                'QR Code Added',
+                'Clear CTA',
+                'Hashtag'
+            ],
+            'TikTok Specific': [
+                'TikTok Platform Compliance',
+                'TikTok Ad Moderation Passed',
+                'TikTok Branded Mission',
+                'TikTok Branded Effects',
+                'Creators Approval / responsiveness',
+                'Client Approvals Responsiveness',
+                'Creators UGC Approvals'
+            ]
+        }
+        post_metrics_base = {
+            'Photography & Visibility': [
+                'High-quality images captured',
+                'Splash video created',
+                'Social media features'
+            ],
+            'Campaign Learnings': [
+                'Key wins identified',
+                'Areas for improvement noted'
+            ]
+        }
+
+        # Interactive Metric Filtering
+        all_pre_categories = [cat for cat in pre_metrics_base.keys() if cat != 'TikTok Specific' or campaign_type == "TikTok Campaign"]
+        selected_pre_categories = st.multiselect(
+            "Select Pre-Campaign Categories to Score",
+            all_pre_categories,
+            default=all_pre_categories,
+            key="pre_category_filter"
+        )
+        all_post_categories = list(post_metrics_base.keys())
+        selected_post_categories = st.multiselect(
+            "Select Post-Campaign Categories to Score",
+            all_post_categories,
+            default=all_post_categories,
+            key="post_category_filter"
+        )
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Define pre_metrics_base with corrected typo
-    pre_metrics_base = {
-        'Creative Readiness': [
-            'Assets received on time',
-            'Storyboard approvals met deadlines',
-            'Creative meets format & resolution'
-        ],
-        'Production Timeline': [
-            'Workback schedule followed',
-            'Vendor deadlines met',
-            'Final creative delivered on time'
-        ],
-        'Placement & Inventory': [
-            'Billboard locations confirmed'
-        ],
-        'Approval & Compliance': [
-            'Vendor tests & pre-launch checks done'  # Fixed: Removed underscore
-        ],
-        'Strategy': [
-            'QR Code Added',
-            'Clear CTA',
-            'Hashtag'
-        ],
-        'TikTok Specific': [
-            'TikTok Platform Compliance',
-            'TikTok Ad Moderation Passed',
-            'TikTok Branded Mission',
-            'TikTok Branded Effects',
-            'Creators Approval / responsiveness',
-            'Client Approvals Responsiveness',
-            'Creators UGC Approvals'
-        ]
-    }
-
-    # Filter pre_metrics based on campaign type
+    # Filter pre_metrics based on campaign type and user selection
     pre_metrics = {}
     for category, metrics in pre_metrics_base.items():
-        filtered_metrics = []
-        for metric in metrics:
-            if campaign_type in ["DIVE Campaign", "BYOB"] and category == 'TikTok Specific':
-                continue  # Exclude TikTok-specific metrics for DIVE and BYOB
-            filtered_metrics.append(metric)
-        if filtered_metrics:  # Only add non-empty categories
-            pre_metrics[category] = filtered_metrics
+        if category in selected_pre_categories and (campaign_type != "TikTok Campaign" or category != 'TikTok Specific' or 'TikTok Specific' in selected_pre_categories):
+            pre_metrics[category] = metrics
+
+    # Filter post_metrics based on user selection
+    post_metrics = {cat: post_metrics_base[cat] for cat in selected_post_categories if cat in post_metrics_base}
 
     # Pre-Campaign Section
     with st.container():
@@ -160,19 +212,6 @@ def create_campaign_scorecard():
                 st.session_state.comments[key] = comment
                 st.markdown('<hr style="border: 1px solid #e0e0e0; margin: 10px 0;">', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
-
-    # Define post_metrics (universal for all campaigns)
-    post_metrics = {
-        'Photography & Visibility': [
-            'High-quality images captured',
-            'Splash video created',
-            'Social media features'
-        ],
-        'Campaign Learnings': [
-            'Key wins identified',
-            'Areas for improvement noted'
-        ]
-    }
 
     # Post-Campaign Section
     with st.container():
@@ -366,6 +405,7 @@ def create_campaign_scorecard():
             )
             st.plotly_chart(fig, use_container_width=True)
 
+        # Enhanced Key Insights with Automated Recommendations
         with st.container():
             st.markdown('<div class="stContainer"><div class="stHeader">Key Insights</div>', unsafe_allow_html=True)
             col1, col2 = st.columns(2)
@@ -379,12 +419,13 @@ def create_campaign_scorecard():
                     st.write("No improvements detected")
             with col2:
                 st.markdown("**Areas for Focus:**")
-                if declines:
-                    declines.sort(key=lambda x: x[1], reverse=True)
-                    for category, diff in declines[:3]:
-                        st.write(f"• {category}: -{diff:.1f}%")
+                low_scores = [(key.split('_')[-1], score) for key, score in {**st.session_state.pre_scores, **st.session_state.post_scores}.items() if score < 3]
+                if low_scores:
+                    low_scores.sort(key=lambda x: x[1])  # Sort by score (lowest first)
+                    for metric, score in low_scores[:3]:
+                        st.write(f"• {metric} ({score_options[score]}): {recommendations.get(metric, 'Review process for improvement.')}")
                 else:
-                    st.write("No declines detected")
+                    st.write("No areas for focus detected")
             st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
