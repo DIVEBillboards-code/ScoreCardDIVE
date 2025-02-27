@@ -43,53 +43,35 @@ def create_campaign_scorecard():
     if 'comments' not in st.session_state:
         st.session_state.comments = {}
 
-    # Define metric_definitions
+    # Define metric_definitions with updated metrics
     metric_definitions = {
+        # Common Pre-Campaign Metrics (All Campaigns)
         'Assets received on time': 'Measures if all creative assets were delivered by the scheduled date.',
         'Storyboard approvals met deadlines': 'Checks if storyboard approvals were completed on time.',
         'Creative meets format & resolution': 'Ensures creative assets meet required formats and resolution standards.',
         'Workback schedule followed': 'Verifies if the production timeline was adhered to as planned.',
         'Vendor deadlines met': 'Confirms if external vendors met their deadlines.',
         'Final creative delivered on time': 'Ensures the final creative was delivered by the deadline.',
-        'Billboard locations confirmed': 'Verifies that billboard placements were secured and confirmed.',  # DIVE-specific
-        'Placement visibility': 'Evaluates the visibility and effectiveness of ad placements.',  # DIVE-specific
+        'Billboard locations confirmed': 'Verifies that billboard placements were secured and confirmed.',
         'Vendor tests & pre-launch checks done': 'Confirms all pre-launch tests and checks by vendors were completed.',
-        'Pre-Defined Moderation Guidelines': 'Refers to established rules for content moderation before launch.',
-        'Approval Checklist': 'Lists required approvals for moderation processes.',
-        'Pre-Moderation Review Process': 'Evaluates content before it goes live for compliance.',
-        'Compliance Script Execution': 'Ensures scripts for compliance checks were correctly implemented.',
-        'Content Submission Date': 'Tracks when content was submitted for moderation.',
-        'Moderation Review Deadline': 'Sets the deadline for completing moderation reviews.',
-        'Influencer Content Submission': 'Monitors when influencers submit their content.',
-        'Influencer Content Approval': 'Tracks approval of influencer-submitted content.',
-        'Client Content Submission': 'Records when clients submit their content for review.',
-        'Client Content Approval': 'Confirms client content has been approved.',
-        'Creator Content Submission': 'Logs when creators submit their content.',
-        'Creator Content Approval': 'Verifies approval of content from creators.',
-        'TikTok Platform Compliance': 'Ensures content meets TikTok’s platform-specific rules.',  # TikTok-specific
-        'TikTok Ad Moderation Passed': 'Confirms TikTok ads passed moderation checks.',  # TikTok-specific
+        # Strategy Category (All Campaigns)
         'QR Code Added': 'Checks if a QR code was included in the campaign materials.',
         'Clear CTA': 'Ensures the campaign includes a clear Call-to-Action.',
-        'Brand Mission': 'Verifies that the campaign aligns with the brand’s mission statement.',
         'Hashtag': 'Confirms a campaign-specific hashtag was created and implemented.',
-        'Actual impressions vs target': 'Compares actual ad impressions to the set target.',
-        'Audience engagement rate': 'Measures how audiences interacted with the campaign.',
-        'Share of voice achieved': 'Evaluates the campaign’s market presence post-launch.',
-        'Social media mentions increased': 'Tracks growth in social media mentions.',
-        'Hashtag usage met expectations': 'Checks if hashtag usage reached expected levels.',
-        'Earned media coverage': 'Measures unsolicited media coverage gained.',
-        'Positive sentiment shift': 'Assesses improvement in audience sentiment.',
-        'UGC growth': 'Tracks growth in user-generated content related to the campaign.',
-        'Influencer engagement': 'Measures interactions and impact from influencers.',
-        'Website traffic increased': 'Evaluates if the campaign drove more website visits.',
-        'Sales lift / conversion growth': 'Measures increase in sales or conversions.',
-        'Cost per engagement met target': 'Checks if engagement costs were within targets.',
+        # TikTok-Only Pre-Campaign Metrics
+        'TikTok Platform Compliance': 'Ensures content meets TikTok’s platform-specific rules.',
+        'TikTok Ad Moderation Passed': 'Confirms TikTok ads passed moderation checks.',
+        'TikTok Branded Mission': 'Verifies alignment with TikTok’s branded mission feature.',
+        'TikTok Branded Effects': 'Confirms branded effects were implemented on TikTok.',
+        'Creators Approval / responsiveness': 'Assesses responsiveness of creators during approvals.',
+        'Client Approvals Responsiveness': 'Evaluates client responsiveness during approval processes.',
+        'Creators UGC Approvals': 'Confirms approval of user-generated content from creators.',
+        # Common Post-Campaign Metrics (All Campaigns)
         'High-quality images captured': 'Ensures campaign visuals meet quality standards.',
         'Splash video created': 'Confirms a promotional video was produced.',
         'Social media features': 'Tracks use of social media features like stories or reels.',
         'Key wins identified': 'Highlights successful aspects of the campaign.',
         'Areas for improvement noted': 'Identifies aspects needing enhancement.',
-        'Optimization recommendations made': 'Suggests ways to improve future campaigns.'
     }
 
     score_options = {
@@ -98,10 +80,10 @@ def create_campaign_scorecard():
         5: "5 - Yes/Excellent"
     }
 
-    # Campaign Information with Campaign Type Selector
+    # Campaign Information
     with st.container():
         st.markdown('<div class="stContainer"><div class="stHeader">Campaign Information</div>', unsafe_allow_html=True)
-        campaign_type = st.selectbox("Campaign Type", ["TikTok Campaign", "DIVE Campaign"], key="campaign_type")
+        campaign_type = st.selectbox("Campaign Type", ["TikTok Campaign", "DIVE Campaign", "BYOB"], key="campaign_type")
         campaign_name = st.text_input("Campaign Name", key="campaign_name")
         start_date = st.date_input("Start Date", key="start_date")
         end_date = st.date_input("End Date", key="end_date")
@@ -110,7 +92,7 @@ def create_campaign_scorecard():
         cities = st.text_input("Cities", key="cities", help="Enter cities separated by commas")
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Define pre_metrics with conditional filtering
+    # Define pre_metrics_base
     pre_metrics_base = {
         'Creative Readiness': [
             'Assets received on time',
@@ -123,45 +105,24 @@ def create_campaign_scorecard():
             'Final creative delivered on time'
         ],
         'Placement & Inventory': [
-            'Billboard locations confirmed',  # DIVE-specific
-            'Placement visibility'  # DIVE-specific
+            'Billboard locations confirmed'
         ],
         'Approval & Compliance': [
-            'Vendor tests & pre-launch checks done'
+            'Vendor tests & pre-launch_checks done'
         ],
-        'Moderation Guidelines': [
-            'Pre-Defined Moderation Guidelines',
-            'Approval Checklist'
-        ],
-        'Moderation Script': [
-            'Pre-Moderation Review Process',
-            'Compliance Script Execution'
-        ],
-        'Moderation Workback Schedule': [
-            'Content Submission Date',
-            'Moderation Review Deadline'
-        ],
-        'Influencer Assets': [
-            'Influencer Content Submission',
-            'Influencer Content Approval'
-        ],
-        'Clients Approvals': [
-            'Client Content Submission',
-            'Client Content Approval'
-        ],
-        'Creators Approvals': [
-            'Creator Content Submission',
-            'Creator Content Approval'
-        ],
-        'TikTok Approvals': [
-            'TikTok Platform Compliance',  # TikTok-specific
-            'TikTok Ad Moderation Passed'  # TikTok-specific
-        ],
-        'Brand Strategy': [
+        'Strategy': [
             'QR Code Added',
             'Clear CTA',
-            'Brand Mission',
             'Hashtag'
+        ],
+        'TikTok Specific': [
+            'TikTok Platform Compliance',
+            'TikTok Ad Moderation Passed',
+            'TikTok Branded Mission',
+            'TikTok Branded Effects',
+            'Creators Approval / responsiveness',
+            'Client Approvals Responsiveness',
+            'Creators UGC Approvals'
         ]
     }
 
@@ -170,12 +131,9 @@ def create_campaign_scorecard():
     for category, metrics in pre_metrics_base.items():
         filtered_metrics = []
         for metric in metrics:
-            if campaign_type == "TikTok Campaign" and metric in ['Billboard locations confirmed', 'Placement visibility']:
-                continue  # Skip DIVE-specific metrics
-            elif campaign_type == "DIVE Campaign" and metric in ['TikTok Platform Compliance', 'TikTok Ad Moderation Passed']:
-                continue  # Skip TikTok-specific metrics
-            else:
-                filtered_metrics.append(metric)
+            if campaign_type in ["DIVE Campaign", "BYOB"] and category == 'TikTok Specific':
+                continue  # Exclude TikTok-specific metrics for DIVE and BYOB
+            filtered_metrics.append(metric)
         if filtered_metrics:  # Only add non-empty categories
             pre_metrics[category] = filtered_metrics
 
@@ -203,28 +161,8 @@ def create_campaign_scorecard():
                 st.markdown('<hr style="border: 1px solid #e0e0e0; margin: 10px 0;">', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Define post_metrics with no campaign-specific filtering (assuming post-campaign metrics are universal)
+    # Define post_metrics (universal for all campaigns)
     post_metrics = {
-        'Impressions & Reach': [
-            'Actual impressions vs target',
-            'Audience engagement rate',
-            'Share of voice achieved'
-        ],
-        'Engagement & Awareness': [
-            'Social media mentions increased',
-            'Hashtag usage met expectations',
-            'Earned media coverage'
-        ],
-        'Brand Sentiment': [
-            'Positive sentiment shift',
-            'UGC growth',
-            'Influencer engagement'
-        ],
-        'Conversion & ROI': [
-            'Website traffic increased',
-            'Sales lift / conversion growth',
-            'Cost per engagement met target'
-        ],
         'Photography & Visibility': [
             'High-quality images captured',
             'Splash video created',
@@ -232,8 +170,7 @@ def create_campaign_scorecard():
         ],
         'Campaign Learnings': [
             'Key wins identified',
-            'Areas for improvement noted',
-            'Optimization recommendations made'
+            'Areas for improvement noted'
         ]
     }
 
