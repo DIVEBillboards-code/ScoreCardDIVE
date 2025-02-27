@@ -297,6 +297,7 @@ def create_campaign_scorecard():
         'Final creative delivered on time': 'Ensures the final creative was delivered by the deadline.',
         'Billboard locations confirmed': 'Verifies that billboard placements were secured and confirmed.',
         'Vendor tests & pre-launch checks done': 'Confirms all pre-launch tests and checks by vendors were completed.',
+        'Client Approvals Responsiveness': 'Evaluates client responsiveness during approval processes.',  # Moved to all campaigns
         # Strategy Category (All Campaigns)
         'QR Code Added': 'Checks if a QR code was included in the campaign materials.',
         'Clear CTA': 'Ensures the campaign includes a clear Call-to-Action.',
@@ -307,7 +308,6 @@ def create_campaign_scorecard():
         'TikTok Branded Mission': 'Verifies alignment with TikTok’s branded mission feature.',
         'TikTok Branded Effects': 'Confirms branded effects were implemented on TikTok.',
         'Creators Approval / responsiveness': 'Assesses responsiveness of creators during approvals.',
-        'Client Approvals Responsiveness': 'Evaluates client responsiveness during approval processes.',
         'Creators UGC Approvals': 'Confirms approval of user-generated content from creators.',
         # Common Post-Campaign Metrics (All Campaigns)
         'High-quality images captured': 'Ensures campaign visuals meet quality standards.',
@@ -327,6 +327,7 @@ def create_campaign_scorecard():
         'Final creative delivered on time': 'Implement buffer periods or escalate delays earlier.',
         'Billboard locations confirmed': 'Confirm locations earlier in the planning phase.',
         'Vendor tests & pre-launch checks done': 'Schedule pre-launch checks earlier to catch issues.',
+        'Client Approvals Responsiveness': 'Schedule regular check-ins to expedite client feedback.',
         'QR Code Added': 'Ensure QR code inclusion is part of the initial creative brief.',
         'Clear CTA': 'Test CTAs with a focus group to ensure clarity.',
         'Hashtag': 'Promote hashtag usage earlier in the campaign.',
@@ -335,7 +336,6 @@ def create_campaign_scorecard():
         'TikTok Branded Mission': 'Align mission with TikTok trends for better traction.',
         'TikTok Branded Effects': 'Test effects with a small audience before full rollout.',
         'Creators Approval / responsiveness': 'Set clear response deadlines for creators.',
-        'Client Approvals Responsiveness': 'Schedule regular check-ins to expedite client feedback.',
         'Creators UGC Approvals': 'Simplify UGC approval process with predefined criteria.',
         'High-quality images captured': 'Invest in better equipment or training for photography team.',
         'Splash video created': 'Plan video production earlier to ensure quality.',
@@ -377,7 +377,8 @@ def create_campaign_scorecard():
                 'Billboard locations confirmed'
             ],
             'Approval & Compliance': [
-                'Vendor tests & pre-launch checks done'
+                'Vendor tests & pre-launch checks done',
+                'Client Approvals Responsiveness'  # Moved here for all campaigns
             ],
             'Strategy': [
                 'QR Code Added',
@@ -390,7 +391,6 @@ def create_campaign_scorecard():
                 'TikTok Branded Mission',
                 'TikTok Branded Effects',
                 'Creators Approval / responsiveness',
-                'Client Approvals Responsiveness',
                 'Creators UGC Approvals'
             ]
         }
