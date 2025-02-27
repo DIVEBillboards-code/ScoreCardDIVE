@@ -296,34 +296,16 @@ def create_campaign_scorecard():
         'Final creative delivered on time': 'Ensures the final creative was delivered by the deadline.',
         'Billboard locations confirmed': 'Verifies that billboard placements were secured and confirmed.',
         'Placement visibility': 'Evaluates the visibility and effectiveness of ad placements.',
-        'Competitive share of voice': 'Measures the campaign’s visibility relative to competitors.',
-        'Budget fully utilized': 'Checks if the entire allocated budget was used effectively.',
-        'Number of spots booked vs planned': 'Compares booked ad spots to the planned number.',
-        'Demographic match': 'Assesses if the target audience matches the intended demographics.',
-        'Estimated reach meets expectations': 'Verifies if the campaign reached the expected audience size.',
-        'Legal/brand compliance approved': 'Ensures all content complies with legal and brand standards.',
+        'Content moderation completed': 'Ensures all content was properly reviewed and moderated before publishing.',
+        'Brand guidelines followed': 'Verifies creative assets adhere to brand guidelines and standards.',
         'Vendor tests & pre-launch checks done': 'Confirms all pre-launch tests and checks by vendors were completed.',
-        'Pre-Defined Moderation Guidelines': 'Refers to established rules for content moderation before launch.',
-        'Approval Checklist': 'Lists required approvals for moderation processes.',
-        'Pre-Moderation Review Process': 'Evaluates content before it goes live for compliance.',
-        'Compliance Script Execution': 'Ensures scripts for compliance checks were correctly implemented.',
-        'Content Submission Date': 'Tracks when content was submitted for moderation.',
-        'Moderation Review Deadline': 'Sets the deadline for completing moderation reviews.',
-        'Influencer Content Submission': 'Monitors when influencers submit their content.',
-        'Influencer Content Approval': 'Tracks approval of influencer-submitted content.',
-        'Client Content Submission': 'Records when clients submit their content for review.',
-        'Client Content Approval': 'Confirms client content has been approved.',
-        'Creator Content Submission': 'Logs when creators submit their content.',
-        'Creator Content Approval': 'Verifies approval of content from creators.',
-        'TikTok Platform Compliance': 'Ensures content meets TikTok’s platform-specific rules.',
-        'TikTok Ad Moderation Passed': 'Confirms TikTok ads passed moderation checks.',
         'QR Code Added': 'Checks if a QR code was included in the campaign materials for tracking or engagement.',
         'Clear CTA': 'Ensures the campaign includes a clear and actionable Call-to-Action.',
-        'Brand Mission': 'Verifies that the campaign aligns with and conveys the brand’s mission statement.',
+        'Brand Mission': 'Verifies that the campaign aligns with and conveys the brand's mission statement.',
         'Hashtag': 'Confirms a campaign-specific hashtag was created and implemented.',
         'Actual impressions vs target': 'Compares actual ad impressions to the set target.',
         'Audience engagement rate': 'Measures how audiences interacted with the campaign.',
-        'Share of voice achieved': 'Evaluates the campaign’s market presence post-launch.',
+        'Share of voice achieved': 'Evaluates the campaign's market presence post-launch.',
         'Social media mentions increased': 'Tracks growth in social media mentions.',
         'Hashtag usage met expectations': 'Checks if hashtag usage reached expected levels.',
         'Earned media coverage': 'Measures unsolicited media coverage gained.',
@@ -338,7 +320,9 @@ def create_campaign_scorecard():
         'Social media features': 'Tracks use of social media features like stories or reels.',
         'Key wins identified': 'Highlights successful aspects of the campaign.',
         'Areas for improvement noted': 'Identifies aspects needing enhancement.',
-        'Optimization recommendations made': 'Suggests ways to improve future campaigns.'
+        'Optimization recommendations made': 'Suggests ways to improve future campaigns.',
+        'Creator and influencer assets approved': 'Ensures all content from creators and influencers was reviewed and approved.',
+        'Platform compliance verified': 'Confirms all content meets the requirements of the platforms where it will be published.'
     }
 
     score_options = {
@@ -374,48 +358,16 @@ def create_campaign_scorecard():
             ],
             'Placement & Inventory': [
                 'Billboard locations confirmed',
-                'Placement visibility',
-                'Competitive share of voice'
-            ],
-            'Budget & Media': [
-                'Budget fully utilized',
-                'Number of spots booked vs planned'
-            ],
-            'Target Audience': [
-                'Demographic match',
-                'Estimated reach meets expectations'
+                'Placement visibility'
             ],
             'Approval & Compliance': [
-                'Legal/brand compliance approved',
+                'Content moderation completed',
+                'Brand guidelines followed',
                 'Vendor tests & pre-launch checks done'
             ],
-            'Moderation Guidelines': [
-                'Pre-Defined Moderation Guidelines',
-                'Approval Checklist'
-            ],
-            'Moderation Script': [
-                'Pre-Moderation Review Process',
-                'Compliance Script Execution'
-            ],
-            'Moderation Workback Schedule': [
-                'Content Submission Date',
-                'Moderation Review Deadline'
-            ],
-            'Influencer Assets': [
-                'Influencer Content Submission',
-                'Influencer Content Approval'
-            ],
-            'Clients Approvals': [
-                'Client Content Submission',
-                'Client Content Approval'
-            ],
-            'Creators Approvals': [
-                'Creator Content Submission',
-                'Creator Content Approval'
-            ],
-            'TikTok Approvals': [
-                'TikTok Platform Compliance',
-                'TikTok Ad Moderation Passed'
+            'Creator Content': [
+                'Creator and influencer assets approved',
+                'Platform compliance verified'
             ],
             'Brand Strategy': [
                 'QR Code Added',
@@ -602,8 +554,16 @@ def create_campaign_scorecard():
 
         elif viz_type == "Radar Chart" and not pre_df.empty and not post_df.empty:
             categories = list(pre_metrics.keys())
-            pre_scores = pre_df['Average Score'].tolist()
-            post_scores = post_df['Average Score'].tolist()
+            pre_scores = []
+            post_scores = []
+            
+            # Ensure we have scores for all categories in both phases
+            for category in categories:
+                pre_score = pre_df[pre_df['Category'] == category]['Average Score'].iloc[0] if not pre_df[pre_df['Category'] == category].empty else 0
+                post_score = post_df[post_df['Category'] == category]['Average Score'].iloc[0] if not post_df[post_df['Category'] == category].empty else 0
+                pre_scores.append(pre_score)
+                post_scores.append(post_score)
+                
             fig = go.Figure()
             fig.add_trace(go.Scatterpolar(
                 r=pre_scores,
@@ -665,7 +625,7 @@ def create_campaign_scorecard():
                 title='Pre vs Post Campaign Score Comparison',
                 height=500
             )
-            fig.update_traces(marker=dict(color='#0066ff'), selector=dict(type='scatter'))
+            fig.update_traces(marker=dict(size=12), selector=dict(type='scatter'))
             fig.update_layout(
                 xaxis_tickangle=-45,
                 yaxis_range=[0, 5],
@@ -738,27 +698,4 @@ def create_campaign_scorecard():
             data.append(["", "", "", ""])
             data.append(["Score Summary", "", "", ""])
             data.append(["Pre-Campaign Score", f"{pre_percentage:.1f}%", "", ""])
-            data.append(["Post-Campaign Score", f"{post_percentage:.1f}%", "", ""])
-            
-            df = pd.DataFrame(data)
-            excel_file = f"campaign_scorecard_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
-            with pd.ExcelWriter(excel_file, engine='openpyxl') as writer:
-                df.to_excel(writer, index=False, header=False)
-                workbook = writer.book
-                worksheet = writer.sheets['Sheet1']
-                header_fill = PatternFill(start_color='CCCCCC', end_color='CCCCCC', fill_type='solid')
-                for cell in worksheet['1:1']:
-                    cell.font = Font(bold=True)
-                    cell.fill = header_fill
-            with open(excel_file, 'rb') as f:
-                st.download_button(
-                    label="Download Excel Report",
-                    data=f,
-                    file_name=excel_file,
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    key="download_button"
-                )
-        st.markdown('</div>', unsafe_allow_html=True)
-
-if __name__ == "__main__":
-    create_campaign_scorecard()
+            data.append(["Post-Campaign Score", f"{post_percentage:.1f}
