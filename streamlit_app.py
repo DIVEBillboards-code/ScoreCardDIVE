@@ -6,10 +6,253 @@ import numpy as np
 from datetime import datetime
 from openpyxl.styles import Font, PatternFill
 
-# CSS for better UX (unchanged)
+# Updated CSS with red changed to blue (#0066FF)
 st.markdown("""
     <style>
-    /* [CSS content remains unchanged] */
+    /* Modern color palette */
+    :root {
+        --primary: #0066FF;
+        --primary-dark: #0052cc;
+        --primary-light: #e6f0ff;
+        --success: #28a745;
+        --warning: #ffc107;
+        --danger: #0066FF;  /* Changed from #dc3545 to #0066FF */
+        --gray-100: #f8f9fa;
+        --gray-200: #e9ecef;
+        --gray-300: #dee2e6;
+    }
+
+    /* Base styles */
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    /* Card container improvements */
+    .stContainer {
+        border: 1px solid var(--gray-300);
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 28px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        background-color: white;
+        transition: all 0.3s ease;
+    }
+    .stContainer:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    /* Enhanced header with gradient */
+    .stHeader {
+        color: white;
+        font-size: 1.6rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px rgba(0, 102, 255, 0.15);
+    }
+    
+    /* Improved subheader */
+    .stSubheader {
+        color: var(--primary-dark);
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin: 24px 0 16px;
+        padding-bottom: 12px;
+        border-bottom: 3px solid var(--primary);
+        transition: color 0.2s ease;
+    }
+    .stSubheader:hover {
+        color: var(--primary);
+    }
+    
+    /* Enhanced metric tiles */
+    .stMetric {
+        background: linear-gradient(135deg, white, var(--gray-100));
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid var(--gray-300);
+        transition: all 0.3s ease;
+        margin-bottom: 16px;
+    }
+    .stMetric:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Modern button styling */
+    .stButton > button {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 16px 32px;
+        border: none;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        width: 100%;
+        text-transform: uppercase;
+        font-size: 14px;
+    }
+    .stButton > button:hover {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, #004399 100%);
+        box-shadow: 0 6px 12px rgba(0, 102, 255, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    /* Enhanced progress bars */
+    .stProgress > div > div {
+        background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 8px;
+        height: 8px !important;
+        transition: width 1s ease-in-out;
+    }
+    .stProgress {
+        height: 8px !important;
+    }
+    
+    /* Improved input styling */
+    .stTextInput > div > div > input,
+    .stSelectbox > div > div > select,
+    .stTextArea > div > div > textarea {
+        border-radius: 12px;
+        border: 2px solid var(--gray-300);
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+        background-color: var(--gray-100);
+    }
+    .stTextInput > div > div > input:focus,
+    .stSelectbox > div > div > select:focus,
+    .stTextArea > div > div > textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        background-color: white;
+    }
+    
+    /* Enhanced expander styling */
+    .st-emotion-cache-1fttcpj {
+        color: var(--primary) !important;
+        font-weight: 500;
+    }
+    .st-emotion-cache-1pwu5cb {
+        color: var(--primary) !important;
+        fill: var(--primary) !important;
+    }
+    .st-emotion-cache-1q1n0ol {
+        color: var(--primary-dark) !important;
+        background-color: var(--primary-light);
+        padding: 16px;
+        border-radius: 8px;
+        margin-top: 8px;
+    }
+    
+    /* Score indicators */
+    .score-indicator {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-align: center;
+        margin-top: 8px;
+    }
+    .score-high {
+        background-color: #e6ffe6;
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+    .score-medium {
+        background-color: #fff9e6;
+        color: var(--warning);
+        border: 1px solid var(--warning);
+    }
+    .score-low {
+        background-color: #e6f0ff;  /* Adjusted to match --primary-light */
+        color: var(--danger);       /* Now #0066FF */
+        border: 1px solid var(--danger);
+    }
+    
+    /* Improved dividers */
+    hr {
+        height: 2px;
+        background: linear-gradient(to right, 
+            transparent, 
+            var(--gray-300), 
+            transparent
+        );
+        border: none;
+        margin: 24px 0;
+    }
+    
+    /* Loading states */
+    .stSpinner > div {
+        border-color: var(--primary);
+        border-top-color: transparent;
+    }
+    
+    /* Tooltip improvements */
+    .stTooltipIcon {
+        color: var(--primary) !important;
+        transition: transform 0.2s ease;
+    }
+    .stTooltipIcon:hover {
+        transform: scale(1.1);
+    }
+    
+    /* Chart customization */
+    .js-plotly-plot .plotly .modebar {
+        background: white !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+    
+    /* Improved table styling */
+    table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    th, td {
+        padding: 16px;
+        background: white;
+        border-bottom: 1px solid var(--gray-300);
+    }
+    th {
+        background: var(--gray-100);
+        font-weight: 600;
+        color: var(--primary-dark);
+    }
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Style for Post-Campaign container */
+    .stContainer-post {
+        border: 1px solid var(--gray-300);
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 28px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        background-color: #f0f0f0; /* Light gray background */
+        transition: all 0.3s ease;
+    }
+    .stContainer-post:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    /* Animation for content loading */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .stContainer, .stContainer-post {
+        animation: fadeIn 0.5s ease-out;
+    }
     </style>
 """, unsafe_allow_html=True)
 
